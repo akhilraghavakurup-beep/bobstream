@@ -16,11 +16,13 @@ import org.libtorrent4j.AlertListener
 import org.libtorrent4j.Priority
 import org.libtorrent4j.SessionManager
 import org.libtorrent4j.SettingsPack
+import org.libtorrent4j.TorrentFlags
 import org.libtorrent4j.TorrentHandle
 import org.libtorrent4j.alerts.Alert
 import org.libtorrent4j.alerts.AlertType
 import org.libtorrent4j.alerts.MetadataReceivedAlert
 import org.libtorrent4j.alerts.PieceFinishedAlert
+import org.libtorrent4j.swig.torrent_flags_t
 import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
@@ -106,8 +108,9 @@ class TorrentEngine(private val context: Context) {
 
                 session.addListener(alertListener)
 
-                // Add magnet download
-                session.download(magnetUri, downloadDir)
+                // Add magnet download with default flags
+                val flags = torrent_flags_t()
+                session.download(magnetUri, downloadDir, flags)
 
                 // Poll for metadata and peers
                 var waitSeconds = 0
@@ -125,9 +128,9 @@ class TorrentEngine(private val context: Context) {
                 }
 
                 val handle = activeHandle ?: run {
-                    val torrents = session.swig()?.torrents
-                    if (torrents != null && !torrents.isEmpty) {
-                        TorrentHandle(torrents[0])
+                    val torrents = session.swig()?.get_torrents()
+                    if (torrents != null && !torrents.empty()) {
+                        TorrentHandle(torrents.get(0))
                     } else null
                 }
 
@@ -135,11 +138,13 @@ class TorrentEngine(private val context: Context) {
                     throw IllegalStateException("Failed to discover torrent metadata from swarm. Check tracker connectivity.")
                 }
 
-                // Enable sequential download on native handle
+                // Enable sequential mode via flags if supported
                 try {
-                    handle.swig()?.set_sequential_download(true)
+                    val currentFlags = handle.flags()
+                    val seqFlag = TorrentFlags.SEQUENTIAL_DOWNLOAD
+                    handle.setFlags(currentFlags.or_(seqFlag))
                 } catch (e: Exception) {
-                    Log.w(TAG, "Could not set sequential download via SWIG: ${e.message}")
+                    Log.w(TAG, "Could not set sequential download flag: ${e.message}")
                 }
 
                 // Inspect files to locate target video file
@@ -184,7 +189,7 @@ class TorrentEngine(private val context: Context) {
                     // Prioritize target video file, ignore others
                     try {
                         val prios = Priority.array(Priority.IGNORE, numFiles)
-                        prios[targetFileIndex] = Priority.SEVEN
+                        prios[targetFileIndex] = Priority.TOP_PRIORITY
                         handle.prioritizeFiles(prios)
                     } catch (e: Exception) {
                         Log.w(TAG, "Error setting file priorities: ${e.message}")
@@ -196,7 +201,7 @@ class TorrentEngine(private val context: Context) {
                 val initialPieces = (pieceCount * 0.05f).toInt().coerceIn(4, 20)
                 for (p in 0 until initialPieces) {
                     try {
-                        handle.setPieceDeadline(p, 1000 + (p * 500))
+                        handle.pieceDeadline(p, 1000 + (p * 500))
                     } catch (_: Exception) {}
                 }
 
@@ -211,8 +216,8 @@ class TorrentEngine(private val context: Context) {
 
                     val st = handle.status()
                     val peers = st?.numPeers() ?: 0
-                    val speedBytes = st?.downloadRate() ?: 0L
-                    val speedKbps = speedBytes / 1024
+                    val speedBytes = st?.downloadRate()?.toLong() ?: 0L
+                    val speedKbps = speedBytes / 1024L
 
                     // Search for downloaded target file in directory
                     if (targetDiskFile == null || !targetDiskFile!!.exists()) {
@@ -259,7 +264,8 @@ class TorrentEngine(private val context: Context) {
                 while (isActive) {
                     delay(2000)
                     val st = handle.status()
-                    Log.d(TAG, "Torrent streaming: peers=${st?.numPeers()}, speed=${st?.downloadRate()?.div(1024)} KB/s, progress=${st?.progress()}")
+                    val dlSpeed = (st?.downloadRate()?.toLong() ?: 0L) / 1024L
+                    Log.d(TAG, "Torrent streaming: peers=${st?.numPeers()}, speed=$dlSpeed KB/s, progress=${st?.progress()}")
                 }
 
             } catch (e: Exception) {
