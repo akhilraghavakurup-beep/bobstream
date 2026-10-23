@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobstream.app.ui.theme.NeonCyan
 import com.bobstream.app.ui.theme.NeonPurple
+import com.bobstream.app.ui.theme.PrimaryTeal
 
 @Composable
 fun BobStreamLogo(
