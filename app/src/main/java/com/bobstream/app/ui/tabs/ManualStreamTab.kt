@@ -60,12 +60,12 @@ fun ManualStreamTab(
             text = "Stream",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = com.bobstream.app.ui.theme.TextPrimary
         )
         Text(
             text = "Paste any manual stream URL, HLS/DASH manifest, or torrent magnet link. Supports pipe syntax (|) or explicit headers & DRM.",
             fontSize = 13.sp,
-            color = Color.Gray
+            color = com.bobstream.app.ui.theme.TextSecondary
         )
 
         // Stream URL input
@@ -118,7 +118,7 @@ fun ManualStreamTab(
                 value = drmScheme.name,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("DRM Scheme", color = Color.Gray) },
+                label = { Text("DRM Scheme", color = com.bobstream.app.ui.theme.TextSecondary) },
                 trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = NeonCyan) },
                 shape = RoundedCornerShape(12.dp),
                 colors = fieldColors(),
@@ -128,11 +128,11 @@ fun ManualStreamTab(
             ExposedDropdownMenu(
                 expanded = drmDropdownExpanded,
                 onDismissRequest = { drmDropdownExpanded = false },
-                modifier = Modifier.background(CardBackground)
+                modifier = Modifier.background(Color.White)
             ) {
                 DrmScheme.values().forEach { scheme ->
                     DropdownMenuItem(
-                        text = { Text(scheme.name, color = Color.White) },
+                        text = { Text(scheme.name, color = com.bobstream.app.ui.theme.TextPrimary) },
                         onClick = {
                             drmScheme = scheme
                             drmDropdownExpanded = false
@@ -187,50 +187,50 @@ fun ManualStreamTab(
             },
             enabled = !isLaunching && streamUrl.isNotBlank(),
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp)
-        ) {
-            if (isLaunching) {
-                CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.Black, strokeWidth = 2.5.dp)
-                Spacer(Modifier.width(10.dp))
-                Text("LAUNCHING STREAM...", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 15.sp)
-            } else {
-                Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black)
-                Spacer(Modifier.width(8.dp))
-                Text("PLAY STREAM", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+            ) {
+                if (isLaunching) {
+                    CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.5.dp)
+                    Spacer(Modifier.width(10.dp))
+                    Text("LAUNCHING STREAM...", color = Color.White, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                } else {
+                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
+                    Spacer(Modifier.width(8.dp))
+                    Text("PLAY STREAM", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                }
             }
         }
     }
-}
 
-@Composable
-fun StreamInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    placeholder: String,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, color = Color.Gray, fontSize = 13.sp) },
-        placeholder = { Text(placeholder, color = Color.DarkGray, fontSize = 13.sp) },
-        singleLine = true,
-        shape = RoundedCornerShape(12.dp),
-        colors = fieldColors(),
-        modifier = modifier.fillMaxWidth()
+    @Composable
+    fun StreamInputField(
+        value: String,
+        onValueChange: (String) -> Unit,
+        label: String,
+        placeholder: String,
+        modifier: Modifier = Modifier
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 13.sp) },
+            placeholder = { Text(placeholder, color = com.bobstream.app.ui.theme.TextTertiary, fontSize = 13.sp) },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = fieldColors(),
+            modifier = modifier.fillMaxWidth()
+        )
+    }
+
+    @Composable
+    private fun fieldColors() = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = NeonCyan,
+        unfocusedBorderColor = CardBorder,
+        focusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
+        unfocusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
+        focusedTextColor = com.bobstream.app.ui.theme.TextPrimary,
+        unfocusedTextColor = com.bobstream.app.ui.theme.TextPrimary
     )
-}
-
-@Composable
-private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = NeonCyan,
-    unfocusedBorderColor = CardBorder,
-    focusedContainerColor = CardBackground,
-    unfocusedContainerColor = CardBackground,
-    focusedTextColor = Color.White,
-    unfocusedTextColor = Color.White
-)

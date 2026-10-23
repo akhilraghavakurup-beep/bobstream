@@ -132,20 +132,28 @@ class TorrentEngine(private val context: Context) {
             val mimeType = if (isMkv) "video/x-matroska" else "video/mp4"
 
             val range = session.headers["range"]
-            val fileLen = if (file.length() > 0) file.length() else 1024L * 1024L * 1024L
+            val actualLength = if (file.exists()) file.length() else 0L
+
+            if (actualLength <= 0L) {
+                return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "File not ready")
+            }
 
             return if (range != null && range.startsWith("bytes=")) {
                 val parts = range.substring("bytes=".length).split("-")
                 val start = parts[0].toLongOrNull() ?: 0L
-                val end = if (parts.size > 1 && parts[1].isNotEmpty()) parts[1].toLong() else fileLen - 1
-                val contentLength = end - start + 1
-
-                val fis = if (file.exists() && file.length() > 0) {
-                    val stream = FileInputStream(file)
-                    stream.skip(start.coerceAtMost(file.length()))
-                    stream
+                val end = if (parts.size > 1 && parts[1].isNotEmpty()) {
+                    parts[1].toLongOrNull()?.coerceAtMost(actualLength - 1) ?: (actualLength - 1)
                 } else {
-                    "".byteInputStream()
+                    actualLength - 1
+                }
+                val contentLength = (end - start + 1).coerceAtLeast(0L)
+
+                val fis = FileInputStream(file)
+                var skipped = 0L
+                while (skipped < start) {
+                    val s = fis.skip(start - skipped)
+                    if (s <= 0) break
+                    skipped += s
                 }
 
                 val res = newFixedLengthResponse(
@@ -154,13 +162,17 @@ class TorrentEngine(private val context: Context) {
                     fis,
                     contentLength
                 )
-                res.addHeader("Content-Range", "bytes $start-$end/$fileLen")
+                res.addHeader("Content-Range", "bytes $start-$end/$actualLength")
                 res.addHeader("Accept-Ranges", "bytes")
+                res.addHeader("Content-Length", contentLength.toString())
+                res.addHeader("Connection", "keep-alive")
                 res
             } else {
-                val fis: InputStream = if (file.exists() && file.length() > 0) FileInputStream(file) else "".byteInputStream()
-                val res = newFixedLengthResponse(Response.Status.OK, mimeType, fis, fileLen)
+                val fis = FileInputStream(file)
+                val res = newFixedLengthResponse(Response.Status.OK, mimeType, fis, actualLength)
                 res.addHeader("Accept-Ranges", "bytes")
+                res.addHeader("Content-Length", actualLength.toString())
+                res.addHeader("Connection", "keep-alive")
                 res
             }
         }

@@ -42,7 +42,7 @@ fun MoviesTab(
     Box(modifier = modifier.fillMaxSize()) {
         if (movies.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No movies configured", color = Color.Gray)
+                Text("No movies configured", color = com.bobstream.app.ui.theme.TextSecondary)
             }
         } else {
             LazyVerticalGrid(
@@ -79,6 +79,7 @@ fun MovieCard(
             .clickable { onClick() },
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = CardBackground),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         border = CardDefaults.outlinedCardBorder().copy(brush = Brush.linearGradient(listOf(CardBorder, CardBorder)))
     ) {
         Column {
@@ -98,7 +99,7 @@ fun MovieCard(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Brush.linearGradient(listOf(Color(0xFF22162B), Color(0xFF140E1B)))),
+                            .background(Brush.linearGradient(listOf(Color(0xFFE2E8F0), Color(0xFFCBD5E1)))),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.Movie, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(42.dp))
@@ -110,7 +111,7 @@ fun MovieCard(
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f)),
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
                                 startY = 120f
                             )
                         )
@@ -122,7 +123,7 @@ fun MovieCard(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color.Black.copy(alpha = 0.75f))
+                        .background(Color.White.copy(alpha = 0.9f))
                         .padding(horizontal = 6.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -134,7 +135,7 @@ fun MovieCard(
 
             Text(
                 text = movie.name,
-                color = Color.White,
+                color = com.bobstream.app.ui.theme.TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
@@ -152,10 +153,10 @@ fun TorrentLoadingOverlay(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = CardBackground,
+        containerColor = Color.White,
         shape = RoundedCornerShape(20.dp),
         title = {
-            Text("Sequential Torrent Stream", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text("Sequential Torrent Stream", color = com.bobstream.app.ui.theme.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         },
         text = {
             Column(
@@ -166,7 +167,7 @@ fun TorrentLoadingOverlay(
                 when (state) {
                     is TorrentState.Connecting -> {
                         CircularProgressIndicator(color = NeonCyan, strokeWidth = 3.dp)
-                        Text(state.message, color = Color.LightGray, fontSize = 14.sp)
+                        Text(state.message, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 14.sp)
                     }
                     is TorrentState.Buffering -> {
                         LinearProgressIndicator(
@@ -180,9 +181,9 @@ fun TorrentLoadingOverlay(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text("Speed: ${state.speedKbps} KB/s", color = AccentGreen, fontSize = 13.sp)
-                            Text("Peers: ${state.peers}", color = NeonPurple, fontSize = 13.sp)
+                            Text("Peers: ${state.peers}", color = NeonCyan, fontSize = 13.sp)
                         }
-                        Text("Pre-buffering sequential stream...", color = Color.LightGray, fontSize = 13.sp)
+                        Text("Pre-buffering sequential stream...", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 13.sp)
                     }
                     is TorrentState.Error -> {
                         Text("Error: ${state.reason}", color = MaterialTheme.colorScheme.error, fontSize = 14.sp)

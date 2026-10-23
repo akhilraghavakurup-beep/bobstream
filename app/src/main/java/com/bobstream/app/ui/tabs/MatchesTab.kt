@@ -58,17 +58,17 @@ fun MatchesTab(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search matches...", color = Color.Gray) },
+                placeholder = { Text("Search matches...", color = com.bobstream.app.ui.theme.TextSecondary) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = NeonCyan) },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = NeonCyan,
                     unfocusedBorderColor = CardBorder,
-                    focusedContainerColor = CardBackground,
-                    unfocusedContainerColor = CardBackground,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
+                    unfocusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
+                    focusedTextColor = com.bobstream.app.ui.theme.TextPrimary,
+                    unfocusedTextColor = com.bobstream.app.ui.theme.TextPrimary
                 ),
                 modifier = Modifier.weight(1f)
             )
@@ -77,7 +77,7 @@ fun MatchesTab(
                 onClick = onRefresh,
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(CardBackground)
+                    .background(com.bobstream.app.ui.theme.SurfaceLight)
             ) {
                 if (isRefreshing) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), color = NeonCyan, strokeWidth = 2.dp)
@@ -96,7 +96,7 @@ fun MatchesTab(
             ) {
                 Text(
                     text = if (matches.isEmpty()) "No matches available. Pull to refresh." else "No matches found.",
-                    color = Color.Gray,
+                    color = com.bobstream.app.ui.theme.TextSecondary,
                     fontSize = 15.sp
                 )
             }
@@ -125,6 +125,7 @@ fun MatchCard(
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = CardBackground),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         border = CardDefaults.outlinedCardBorder().copy(brush = Brush.linearGradient(listOf(CardBorder, CardBorder)))
     ) {
         Column {
@@ -144,7 +145,7 @@ fun MatchCard(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Brush.linearGradient(listOf(Color(0xFF1E2433), Color(0xFF10131B)))),
+                            .background(Brush.linearGradient(listOf(Color(0xFFE2E8F0), Color(0xFFCBD5E1)))),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(48.dp))
@@ -157,7 +158,7 @@ fun MatchCard(
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
                                 startY = 100f
                             )
                         )
@@ -193,14 +194,14 @@ fun MatchCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = match.name,
-                        color = Color.White,
+                        color = com.bobstream.app.ui.theme.TextPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1
                     )
                     Text(
                         text = if (match.link.contains("drm_key")) "DRM Protected Stream" else "Direct HLS / DASH",
-                        color = if (match.link.contains("drm_key")) NeonCyan else Color.Gray,
+                        color = if (match.link.contains("drm_key")) NeonCyan else com.bobstream.app.ui.theme.TextSecondary,
                         fontSize = 12.sp
                     )
                 }
@@ -211,9 +212,9 @@ fun MatchCard(
                     colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Watch", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text("Watch", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
             }
         }

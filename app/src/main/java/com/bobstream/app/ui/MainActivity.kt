@@ -143,18 +143,18 @@ fun MainScreen(
                 title = { BobStreamLogo() },
                 actions = {
                     IconButton(onClick = { showAboutDialog = true }) {
-                        Icon(Icons.Default.Info, contentDescription = "About", tint = Color.LightGray)
+                        Icon(Icons.Default.Info, contentDescription = "About", tint = com.bobstream.app.ui.theme.TextSecondary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBackground
+                    containerColor = Color.White
                 )
             )
         },
         bottomBar = {
             NavigationBar(
-                containerColor = SurfaceDark,
-                tonalElevation = 8.dp
+                containerColor = Color.White,
+                tonalElevation = 6.dp
             ) {
                 NavigationBarItem(
                     selected = selectedTab == 0,
@@ -162,11 +162,11 @@ fun MainScreen(
                     icon = { Icon(Icons.Default.SportsSoccer, contentDescription = "Matches") },
                     label = { Text("Matches", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Black,
+                        selectedIconColor = Color.White,
                         selectedTextColor = NeonCyan,
                         indicatorColor = NeonCyan,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
+                        unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
+                        unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
                     )
                 )
 
@@ -176,11 +176,11 @@ fun MainScreen(
                     icon = { Icon(Icons.Default.Movie, contentDescription = "Movies") },
                     label = { Text("Movies", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Black,
+                        selectedIconColor = Color.White,
                         selectedTextColor = NeonCyan,
                         indicatorColor = NeonCyan,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
+                        unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
+                        unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
                     )
                 )
 
@@ -190,16 +190,16 @@ fun MainScreen(
                     icon = { Icon(Icons.Default.PlayCircleOutline, contentDescription = "Stream") },
                     label = { Text("Stream", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Black,
+                        selectedIconColor = Color.White,
                         selectedTextColor = NeonCyan,
                         indicatorColor = NeonCyan,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
+                        unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
+                        unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
                     )
                 )
             }
         },
-        containerColor = DarkBackground
+        containerColor = com.bobstream.app.ui.theme.SurfaceLight
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -235,19 +235,19 @@ fun MainScreen(
     if (showAboutDialog) {
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
-            containerColor = CardBackground,
+            containerColor = Color.White,
             shape = RoundedCornerShape(18.dp),
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.Info, contentDescription = null, tint = NeonCyan)
-                    Text("About BobStream", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("About BobStream", color = com.bobstream.app.ui.theme.TextPrimary, fontWeight = FontWeight.Bold)
                 }
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Version: v${UpdateManager.CURRENT_VERSION_NAME} (Build ${UpdateManager.CURRENT_VERSION_CODE})", color = Color.White, fontWeight = FontWeight.SemiBold)
-                    Text("Engine: AndroidX Media3 1.4.1 + Sequential P2P Engine", color = Color.LightGray, fontSize = 12.sp)
-                    Text("Features: HLS/DASH, ClearKey/Widevine DRM, Sequential Magnet Streaming, Inbuilt OTA Updates.", color = Color.Gray, fontSize = 12.sp)
+                    Text("Version: v${UpdateManager.CURRENT_VERSION_NAME} (Build ${UpdateManager.CURRENT_VERSION_CODE})", color = com.bobstream.app.ui.theme.TextPrimary, fontWeight = FontWeight.SemiBold)
+                    Text("Engine: AndroidX Media3 1.4.1 + Sequential P2P Engine", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp)
+                    Text("Features: HLS/DASH, ClearKey/Widevine DRM, Sequential Magnet Streaming, Inbuilt OTA Updates.", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp)
 
                     Spacer(Modifier.height(6.dp))
 
@@ -261,12 +261,12 @@ fun MainScreen(
                         )
                     } else if (updateInfo != null) {
                         if (updateInfo!!.hasUpdate) {
-                            Text("New version v${updateInfo!!.latestVersion} is available!", color = Color(0xFF3FB950), fontWeight = FontWeight.Bold)
+                            Text("New version v${updateInfo!!.latestVersion} is available!", color = Color(0xFF16A34A), fontWeight = FontWeight.Bold)
                             updateInfo!!.releaseNotes?.let {
-                                Text(it, color = Color.LightGray, fontSize = 12.sp, maxLines = 3)
+                                Text(it, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp, maxLines = 3)
                             }
                         } else {
-                            Text("You are on the latest version.", color = Color.Gray, fontSize = 13.sp)
+                            Text("You are on the latest version.", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 13.sp)
                         }
                     }
                 }
@@ -291,7 +291,7 @@ fun MainScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = NeonCyan)
                     ) {
-                        Text("Download & Install", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text("Download & Install", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 } else if (!isDownloadingUpdate) {
                     Button(
@@ -306,16 +306,16 @@ fun MainScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = NeonCyan)
                     ) {
                         if (isCheckingUpdate) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.Black, strokeWidth = 2.dp)
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
                         } else {
-                            Text("Check for Updates", color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text("Check for Updates", color = Color.White, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
-                    Text("Close", color = Color.Gray)
+                    Text("Close", color = com.bobstream.app.ui.theme.TextSecondary)
                 }
             }
         )

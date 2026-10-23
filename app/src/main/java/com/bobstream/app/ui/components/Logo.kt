@@ -63,7 +63,7 @@ fun BobStreamLogo(
             }
             drawPath(
                 path = trianglePath,
-                brush = Brush.horizontalGradient(listOf(NeonCyan, Color.White))
+                brush = Brush.horizontalGradient(listOf(NeonCyan, PrimaryTeal))
             )
         }
 
@@ -71,7 +71,7 @@ fun BobStreamLogo(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "BOB",
-                    color = Color.White,
+                    color = com.bobstream.app.ui.theme.TextPrimary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     fontFamily = FontFamily.SansSerif

@@ -2,25 +2,28 @@ package com.bobstream.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Professional Material 3 Dark Palette
-val PrimaryIndigo = Color(0xFF388BFD)
-val PrimaryTeal = Color(0xFF2DD4BF)
-val SecondaryBlue = Color(0xFF58A6FF)
+// Professional Material 3 Light / White Palette
+val PrimaryIndigo = Color(0xFF2563EB)
+val PrimaryTeal = Color(0xFF0D9488)
+val SecondaryBlue = Color(0xFF3B82F6)
 
-val DarkBackground = Color(0xFF0D1117)
-val SurfaceDark = Color(0xFF161B22)
-val CardBackground = Color(0xFF21262D)
-val CardBorder = Color(0xFF30363D)
+val WhiteBackground = Color(0xFFFFFFFF)
+val SurfaceLight = Color(0xFFF8FAFC)
+val CardBackground = Color(0xFFFFFFFF)
+val CardBorder = Color(0xFFE2E8F0)
 
-val TextPrimary = Color(0xFFF0F6FC)
-val TextSecondary = Color(0xFF8B949E)
-val TextTertiary = Color(0xFF6E7681)
+val TextPrimary = Color(0xFF0F172A)
+val TextSecondary = Color(0xFF64748B)
+val TextTertiary = Color(0xFF94A3B8)
 
-val AccentRed = Color(0xFFF85149)
-val AccentGreen = Color(0xFF3FB950)
-val AccentAmber = Color(0xFFD29922)
+val AccentRed = Color(0xFFEF4444)
+val AccentGreen = Color(0xFF10B981)
+val AccentAmber = Color(0xFFF59E0B)
 
-// Material 3 aliases
+// Aliases for compatibility
+val DarkBackground = WhiteBackground
+val SurfaceDark = SurfaceLight
 val NeonCyan = PrimaryIndigo
 val NeonPurple = PrimaryTeal
-val DeepViolet = Color(0xFF1F2937)
+val DeepViolet = Color(0xFFEFF6FF)
+

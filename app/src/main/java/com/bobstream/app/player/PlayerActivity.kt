@@ -409,12 +409,23 @@ class PlayerActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        exoPlayer?.play()
+        if (exoPlayer?.isPlaying == false && !isFinishing) {
+            exoPlayer?.play()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        exoPlayer?.pause()
+        // Do NOT pause playback when entering PiP or going into background
+        // Playback continues playing smoothly in background / PiP mode.
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // If not in Picture-in-Picture mode and user leaves, we can choose to keep audio playing or pause if finishing
+        if (isFinishing) {
+            exoPlayer?.pause()
+        }
     }
 
     override fun onDestroy() {

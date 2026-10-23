@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.BobStream" parent="android:Theme.Material.NoActionBar">
-        <item name="android:statusBarColor">#FF0D0F14</item>
-        <item name="android:navigationBarColor">#FF0D0F14</item>
-        <item name="android:windowBackground">#FF0D0F14</item>
+    <style name="Theme.BobStream" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FFFFFFFF</item>
+        <item name="android:navigationBarColor">#FFF8FAFC</item>
+        <item name="android:windowBackground">#FFFFFFFF</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <style name="Theme.BobStream.Player" parent="android:Theme.Material.NoActionBar">
