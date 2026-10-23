@@ -2,7 +2,7 @@
   "matches": [
     {
       "name": "Kaun Banega crorepati",
-      "image": "https://s1.dmcdn.net/v/Y-CeY1eglRIrqiglS/x720",
+      "image": "https://images.news18.com/ibnlive/uploads/2021/08/studio_project-6-162868414816x9.jpeg",
       "link": "https://a100live-pv-ta-amazon.akamaized.net/bom-nitro/live/clients/dash/enc/nmd4mhjfix/out/v1/887099df693b471aa576d890c35b171b/cenc.mpd"
     },
     {
@@ -14,16 +14,6 @@
       "name": "Kabaddi",
       "image": "https://gencgazetenet.teimg.com/crop/1280x720/gencgazete-net/uploads/2023/12/qvq-p-yncl-yeni-spor-dallari-kabaddi.jpg",
       "link": "https://livetv.hotstar.com/mp1/gec-india-1540068247/9a6e7c30f9194cc1a6a6250cedb115fb/index.mpd?|cookie=hdntl=exp=1792821391~acl=%2f*~id=b360c069d5c32858ad5fcefcdc608d6d~data=hdntl~hmac=b33be9f6b9ae14855c5a6e6b3b5c68725d538da8cc47140bfde5fb2f33dbfc9a&referer=https://www.hotstar.com/&origin=https://www.hotstar.com&drmScheme=clearkey&drmLicense=e85897bf6e594d698b7c82646c8e0000:d2dda31234ae40538843e871cd4dcc2a"
-    },
-    {
-      "name": "TKFC Vs TMFC [1080p]",
-      "image": "https://superleaguekerala.blr1.cdn.digitaloceanspaces.com/assets/clubImages/webp/Kochi.webp",
-      "link": "https://falconstream.zee5.com/cmaf/live/2109038/SLK-M01-231026_MAL/master_1080p.m3u8?hdntl=exp=1792849871~acl=%2f*~id=0-1-6z51083998_7F1A7661-4E4C-421F-8BA7-DA31C4798DEC~data=hdntl,2109038,SLK-M01-231026,MAL,00885635bab094f8ff1fef526b9e05272cc0c36eb94b29a869ce8277aa9f6fbc~hmac=eecd4859bae75b6a4cd65722280f8e186f4c232b505d8289f0f0de1f50b707fc|User-Agent=Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36&Referer=https://www.zee5.com/&Origin=https://www.zee5.com"
-    },
-    {
-      "name": "TKFC Vs TMFC [English 1080p]",
-      "image": "https://superleaguekerala.blr1.cdn.digitaloceanspaces.com/assets/clubImages/webp/Kochi.webp",
-      "link": "https://falconstream.zee5.com/cmaf/live/2109037/SLK-M01-231026_ENG/master_1080p.m3u8?hdntl=exp=1792850181~acl=%2f*~id=0-1-6z51083998_bot_e150a85711e9a4028141f97a2ff1~data=hdntl,2109037,SLK-M01-231026,ENG,2b7f112efcde5c824fcaf9927ae54a0e203dbc3627affbb256b97bbf65a0bb9d~hmac=87677f13c1b8f5c3ed98fc16649fba087c83af8058385a6956558f2ed14879b5|User-Agent=Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36&Referer=https://www.zee5.com/&Origin=https://www.zee5.com"
     },
     {
       "name": "Al Nassr",
@@ -52,12 +42,12 @@
     },
     {
       "name": "Final - Afghanistan vs Zimbabwe",
-      "image": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/318000/318044.6.jpg",
+      "image": "https://img.cricketnmore.com/uploads/2022/06/nabi--zadran-shines.jpg",
       "link": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/jr2yukryn7/out/v1/2310db8f31c047c4b01ebd3ab96d815d/cenc.mpd"
     },
     {
       "name": "Inter Kashi vs East Bengal FC - 23 Oct 2026 [HIN]",
-      "image": "https://emamieastbengal.com/wp-content/uploads/TAD_3755.webp",
+      "image": "https://assets.khelnow.com/news/uploads/2026/05/IK-VS-EBFC-Preview-Lead.jpg",
       "link": "https://sonydaime.akamaized.net/hls/live/2094589/footlive2310/HIN/master.m3u8?hdnea=exp=1792772247~acl=/*~id=33623224856689263408327080039398~hmac=25a71a39912bc77d5e1f83ab7b7b9c29e66abe4ab571cb17a71eeb33bedbbb68|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
     },
     {
