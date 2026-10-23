@@ -72,7 +72,7 @@ class TorrentEngine(private val context: Context) {
                     delay(250)
                 }
 
-                val isMkv = file.name.endsWith(".mkv", ignoreCase = true)
+                val isMkv = displayName.endsWith(".mkv", ignoreCase = true) || targetFile.name.endsWith(".mkv", ignoreCase = true)
                 val mimeType = if (isMkv) "video/x-matroska" else "video/mp4"
 
                 val streamUrl = "http://127.0.0.1:$port/${if (isMkv) "stream.mkv" else "stream.mp4"}"

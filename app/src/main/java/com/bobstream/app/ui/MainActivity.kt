@@ -34,12 +34,14 @@ import com.bobstream.app.ui.theme.CardBackground
 import com.bobstream.app.ui.theme.DarkBackground
 import com.bobstream.app.ui.theme.NeonCyan
 import com.bobstream.app.ui.theme.SurfaceDark
-import com.bobstream.app.util.StreamParser
-import kotlinx.coroutines.launch
-
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import com.bobstream.app.ui.theme.CardBorder
 import android.widget.Toast
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.ui.platform.LocalContext
+import com.bobstream.app.util.StreamParser
+import kotlinx.coroutines.launch
 import com.bobstream.app.util.UpdateInfo
 import com.bobstream.app.util.UpdateManager
 
