@@ -23,7 +23,7 @@ API_ID = int(os.environ.get("API_ID", "33673228"))
 API_HASH = os.environ.get("API_HASH", "b86b954873058e3766fe17187ce87fd6")
 STRING_SESSION = os.environ.get("STRING_SESSION", "")
 GH_TOKEN = os.environ.get("GH_TOKEN", "")
-TARGET_CHANNEL = os.environ.get("TARGET_CHANNEL", "sportlovers")
+TARGET_CHANNEL = os.environ.get("TARGET_CHANNEL", "-1001850610022")
 GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "akhilraghavakurup-beep/bobstream")
 FILE_PATH = "config.json"
 
@@ -40,7 +40,9 @@ def fetch_yandex_thumbnail(query: str) -> str:
     if not query or len(query.strip()) < 3:
         return DEFAULT_FALLBACK_IMAGE
 
+    # Clean the query of stream metadata
     clean_query = re.sub(r'https?://\S+', '', query)
+    clean_query = re.sub(r'\((English|Hindi|Malayalam|Tamil|Telugu|1080p|720p|Stream\s*\d*)\)', '', clean_query, flags=re.IGNORECASE)
     clean_query = re.sub(r'[^\w\s]', ' ', clean_query).strip()
 
     search_term = f"{clean_query} sports"
@@ -77,43 +79,79 @@ def fetch_yandex_thumbnail(query: str) -> str:
 
     return DEFAULT_FALLBACK_IMAGE
 
-def parse_message_to_match(text: str) -> dict | None:
+def parse_messages_to_matches(text: str) -> list:
     """
-    Extracts title above URL and the complete streaming link.
+    Extracts all stream links from a message, capturing the overall match title
+    and any language/quality label above each URL.
     """
     if not text:
-        return None
+        return []
 
-    url_match = URL_REGEX.search(text)
-    if not url_match:
-        return None
+    url_matches = list(URL_REGEX.finditer(text))
+    if not url_matches:
+        return []
 
-    full_link = url_match.group(0).strip()
-    # If link contains trailing brackets/punctuation, clean it up but keep pipe syntax intact
-    full_link = full_link.rstrip(')>]')
+    # Get overall title from text before the first URL
+    first_text = text[:url_matches[0].start()]
+    first_lines = [l.strip() for l in first_text.splitlines() if l.strip()]
+    overall_title = first_lines[0] if first_lines else "Live Match"
+    overall_title = re.sub(r'[*_`~]', '', overall_title).strip()
 
-    # Extract text ABOVE the URL
-    url_start_pos = url_match.start()
-    text_before_url = text[:url_start_pos]
+    items = []
+    for idx, m in enumerate(url_matches):
+        full_link = m.group(0).strip().rstrip(')>]')
+        
+        # Determine name for this specific stream
+        prev_end = url_matches[idx-1].end() if idx > 0 else 0
+        between_text = text[prev_end:m.start()]
+        lines = [l.strip() for l in between_text.splitlines() if l.strip()]
 
-    # Split lines and extract title
-    lines = [line.strip() for line in text_before_url.splitlines() if line.strip()]
+        if idx == 0:
+            name = overall_title
+        else:
+            label = lines[-1] if lines else f"Stream {idx+1}"
+            label = re.sub(r'[*_`~]', '', label).strip()
+            name = f"{overall_title} ({label})" if overall_title else label
 
-    # If lines found before URL, join the last 1 or 2 lines as name
-    if lines:
-        name = " - ".join(lines[-2:]) if len(lines) >= 2 and len(lines[-1]) < 10 else lines[-1]
-    else:
-        # Fallback to text after or generic title
-        remaining_lines = [l.strip() for l in text[url_match.end():].splitlines() if l.strip()]
-        name = remaining_lines[0] if remaining_lines else "Live Match Stream"
+        items.append({
+            "name": name,
+            "link": full_link
+        })
 
-    # Clean formatting markdown/emojis if overly noisy
-    name = re.sub(r'[*_`~]', '', name).strip()
+    return items
 
-    return {
-        "name": name,
-        "link": full_link
-    }
+async def resolve_target_entity(client, target):
+    """
+    Resolves the Telegram entity either by integer channel ID,
+    username, or title search across joined dialogs.
+    """
+    target_str = str(target).strip()
+    
+    # 1. Try numeric ID
+    if target_str.startswith("-100") or target_str.isdigit() or (target_str.startswith("-") and target_str[1:].isdigit()):
+        try:
+            return await client.get_entity(int(target_str))
+        except Exception:
+            pass
+
+    # 2. Try username directly
+    try:
+        clean_user = target_str.lstrip("@")
+        return await client.get_entity(clean_user)
+    except Exception:
+        pass
+
+    # 3. Match against joined dialog titles
+    print(f"[*] Searching joined dialogs for target: '{target_str}'...")
+    async for dialog in client.iter_dialogs(limit=100):
+        if dialog.is_channel or dialog.is_group:
+            title_norm = re.sub(r'[^\w\s]', '', dialog.title).lower()
+            target_norm = re.sub(r'[^\w\s]', '', target_str).lower()
+            if target_norm in title_norm or title_norm in target_norm:
+                print(f"[✓] Matched dialog: '{dialog.title}' (ID: {dialog.id})")
+                return dialog.entity
+
+    raise ValueError(f"Could not resolve target channel/group: '{target_str}' in your Telegram account.")
 
 async def fetch_telegram_matches() -> list:
     """
@@ -133,38 +171,39 @@ async def fetch_telegram_matches() -> list:
         raise PermissionError("Telethon StringSession is not authorized or has expired!")
 
     cutoff_time = datetime.now(timezone.utc) - timedelta(hours=12)
-    print(f"[*] Fetching messages from @{TARGET_CHANNEL} since {cutoff_time.isoformat()} (12-hour window)...")
+    print(f"[*] Fetching messages from target '{TARGET_CHANNEL}' since {cutoff_time.isoformat()} (12-hour window)...")
 
     matches = []
     seen_links = set()
 
     try:
-        entity = await client.get_entity(TARGET_CHANNEL)
+        entity = await resolve_target_entity(client, TARGET_CHANNEL)
+        print(f"[✓] Resolved channel entity: {getattr(entity, 'title', entity.id)}")
+
         async for msg in client.iter_messages(entity, limit=100):
             if msg.date < cutoff_time:
                 break
 
             if msg.text:
-                parsed = parse_message_to_match(msg.text)
-                if parsed and parsed["link"] not in seen_links:
-                    seen_links.add(parsed["link"])
-                    # Fetch thumbnail for match
-                    print(f"  [+] Found match: '{parsed['name']}'")
-                    thumb = fetch_yandex_thumbnail(parsed["name"])
-                    matches.append({
-                        "name": parsed["name"],
-                        "image": thumb,
-                        "link": parsed["link"]
-                    })
+                parsed_items = parse_messages_to_matches(msg.text)
+                for item in parsed_items:
+                    if item["link"] not in seen_links:
+                        seen_links.add(item["link"])
+                        print(f"  [+] Found match: '{item['name']}'")
+                        thumb = fetch_yandex_thumbnail(item["name"])
+                        matches.append({
+                            "name": item["name"],
+                            "image": thumb,
+                            "link": item["link"]
+                        })
     finally:
         await client.disconnect()
 
-    # Oldest to newest or newest first
     return matches
 
 def sync_to_github(new_matches: list):
     """
-    Compares new matches with the current config.json on GitHub.
+    Compares new matches with current config.json on GitHub.
     Commits changes only if there's an actual update.
     """
     if not GH_TOKEN:
@@ -185,7 +224,6 @@ def sync_to_github(new_matches: list):
 
     current_matches = current_data.get("matches", [])
 
-    # Check for functional equivalence (comparing name and link)
     def normalize_for_comparison(items):
         return [{"name": m.get("name", "").strip(), "link": m.get("link", "").strip()} for m in items]
 
