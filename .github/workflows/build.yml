@@ -5,12 +5,20 @@ on:
     branches: [ "main", "master" ]
     paths-ignore:
       - 'config.json'
+      - 'updater.py'
+      - 'requirements.txt'
+      - 'scripts/**'
+      - '.github/workflows/bot.yml'
       - '**.md'
       - '.gitignore'
   pull_request:
     branches: [ "main", "master" ]
     paths-ignore:
       - 'config.json'
+      - 'updater.py'
+      - 'requirements.txt'
+      - 'scripts/**'
+      - '.github/workflows/bot.yml'
       - '**.md'
       - '.gitignore'
   workflow_dispatch:
