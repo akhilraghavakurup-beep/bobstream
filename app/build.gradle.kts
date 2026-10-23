@@ -22,18 +22,6 @@ android {
         }
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = file("${rootDir}/release.jks")
-            storePassword = "bobstream_signing_key_2026"
-            keyAlias = "bobstream"
-            keyPassword = "bobstream_signing_key_2026"
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -41,7 +29,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

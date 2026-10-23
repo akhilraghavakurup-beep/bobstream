@@ -18,6 +18,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout Code
@@ -35,10 +37,6 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew || true
 
-    - name: Setup Release Keystore
-      run: |
-        keytool -genkeypair -v -keystore release.jks -alias bobstream -keyalg RSA -keysize 2048 -validity 10000 -storepass bobstream_signing_key_2026 -keypass bobstream_signing_key_2026 -dname "CN=BobStream, OU=Media, O=BobStream, L=San Francisco, ST=CA, C=US"
-
     - name: Run Unit Tests
       run: ./gradlew test --stacktrace
 
@@ -51,3 +49,16 @@ jobs:
         name: bobstream-release-apk
         path: app/build/outputs/apk/release/app-release.apk
         retention-days: 14
+
+    - name: Publish GitHub Release for In-App OTA
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        TAG_NAME="v1.2.0"
+        gh release delete "$TAG_NAME" --yes 2>/dev/null || true
+        git tag -d "$TAG_NAME" 2>/dev/null || true
+        git push origin ":refs/tags/$TAG_NAME" 2>/dev/null || true
+        gh release create "$TAG_NAME" app/build/outputs/apk/release/app-release.apk \
+          --title "BobStream $TAG_NAME" \
+          --notes "BobStream Release with In-App OTA update support, stream parser improvements, and torrent playback fixes."

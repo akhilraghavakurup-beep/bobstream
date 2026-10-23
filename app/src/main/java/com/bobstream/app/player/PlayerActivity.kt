@@ -167,6 +167,11 @@ class PlayerActivity : ComponentActivity() {
                 .setDataSourceFactory(httpDataSourceFactory)
 
             val mediaItemBuilder = MediaItem.Builder().setUri(Uri.parse(mediaUrl))
+            if (mediaUrl.endsWith(".mkv", ignoreCase = true)) {
+                mediaItemBuilder.setMimeType(androidx.media3.common.MimeTypes.VIDEO_MATROSKA)
+            } else if (mediaUrl.endsWith(".mp4", ignoreCase = true)) {
+                mediaItemBuilder.setMimeType(androidx.media3.common.MimeTypes.VIDEO_MP4)
+            }
 
             when (drmScheme) {
                 DrmScheme.CLEARKEY -> {

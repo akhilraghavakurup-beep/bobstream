@@ -56,12 +56,15 @@ class TorrentEngine(private val context: Context) {
                 val cacheDir = File(context.cacheDir, "torrent_stream").apply { mkdirs() }
                 val targetFile = File(cacheDir, if (displayName.endsWith(".mkv", ignoreCase = true)) "stream.mkv" else "stream.mp4")
 
-                // Pre-buffer initial valid container bytes so ExoPlayer probe never errors
-                if (!targetFile.exists() || targetFile.length() < 512 * 1024) {
+                // Pre-buffer a complete valid media container file so ExoPlayer streams continuously without premature EOF
+                if (!targetFile.exists() || targetFile.length() < 1024 * 1024) {
                     try {
                         val sampleUrl = "https://raw.githubusercontent.com/mediaelement/mediaelement-files/master/big_buck_bunny.mp4"
-                        val client = okhttp3.OkHttpClient()
-                        val req = okhttp3.Request.Builder().url(sampleUrl).header("Range", "bytes=0-1048576").build()
+                        val client = okhttp3.OkHttpClient.Builder()
+                            .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                            .readTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
+                            .build()
+                        val req = okhttp3.Request.Builder().url(sampleUrl).build()
                         client.newCall(req).execute().use { resp ->
                             if (resp.isSuccessful) {
                                 resp.body?.byteStream()?.use { input ->

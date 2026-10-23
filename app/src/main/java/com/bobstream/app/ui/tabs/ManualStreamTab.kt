@@ -152,39 +152,54 @@ fun ManualStreamTab(
 
         Spacer(Modifier.height(8.dp))
 
+        var isLaunching by remember { mutableStateOf(false) }
+
         // Play Button
         Button(
             onClick = {
-                if (streamUrl.isNotBlank()) {
-                    val headersMap = mutableMapOf<String, String>()
-                    if (userAgent.isNotBlank()) headersMap["User-Agent"] = userAgent.trim()
-                    if (referer.isNotBlank()) headersMap["Referer"] = referer.trim()
-                    if (origin.isNotBlank()) headersMap["Origin"] = origin.trim()
-                    if (cookie.isNotBlank()) headersMap["Cookie"] = cookie.trim()
+                if (streamUrl.isNotBlank() && !isLaunching) {
+                    isLaunching = true
+                    val trimmed = streamUrl.trim()
+                    val isMagnet = trimmed.startsWith("magnet:", ignoreCase = true)
 
-                    val isMagnet = streamUrl.trim().startsWith("magnet:", ignoreCase = true)
+                    val request = if (trimmed.contains("|") && !isMagnet) {
+                        StreamParser.parse(title = "Custom Stream", rawLink = trimmed)
+                    } else {
+                        val headersMap = mutableMapOf<String, String>()
+                        if (userAgent.isNotBlank()) headersMap["User-Agent"] = userAgent.trim()
+                        if (referer.isNotBlank()) headersMap["Referer"] = referer.trim()
+                        if (origin.isNotBlank()) headersMap["Origin"] = origin.trim()
+                        if (cookie.isNotBlank()) headersMap["Cookie"] = cookie.trim()
 
-                    onPlayStream(
                         StreamRequest(
                             title = if (isMagnet) "Torrent Stream" else "Custom Stream",
-                            mediaUrl = streamUrl.trim(),
+                            mediaUrl = trimmed,
                             headers = headersMap,
                             drmScheme = drmScheme,
                             drmKeyOrLicense = drmKeyOrLicense.trim().ifEmpty { null },
                             isTorrent = isMagnet
                         )
-                    )
+                    }
+                    onPlayStream(request)
+                    isLaunching = false
                 }
             },
+            enabled = !isLaunching && streamUrl.isNotBlank(),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
         ) {
-            Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black)
-            Spacer(Modifier.width(8.dp))
-            Text("PLAY STREAM", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 16.sp)
+            if (isLaunching) {
+                CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.Black, strokeWidth = 2.5.dp)
+                Spacer(Modifier.width(10.dp))
+                Text("LAUNCHING STREAM...", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 15.sp)
+            } else {
+                Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black)
+                Spacer(Modifier.width(8.dp))
+                Text("PLAY STREAM", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 16.sp)
+            }
         }
     }
 }
