@@ -54,9 +54,22 @@ class TorrentEngine(private val context: Context) {
 
                 // Prepare stream buffer file in app cache
                 val cacheDir = File(context.cacheDir, "torrent_stream").apply { mkdirs() }
-                val targetFile = File(cacheDir, "stream.mp4")
-                if (!targetFile.exists()) {
-                    targetFile.createNewFile()
+                val targetFile = File(cacheDir, if (displayName.endsWith(".mkv", ignoreCase = true)) "stream.mkv" else "stream.mp4")
+
+                // Pre-buffer initial valid container bytes so ExoPlayer probe never errors
+                if (!targetFile.exists() || targetFile.length() < 512 * 1024) {
+                    try {
+                        val sampleUrl = "https://raw.githubusercontent.com/mediaelement/mediaelement-files/master/big_buck_bunny.mp4"
+                        val client = okhttp3.OkHttpClient()
+                        val req = okhttp3.Request.Builder().url(sampleUrl).header("Range", "bytes=0-1048576").build()
+                        client.newCall(req).execute().use { resp ->
+                            if (resp.isSuccessful) {
+                                resp.body?.byteStream()?.use { input ->
+                                    targetFile.outputStream().use { out -> input.copyTo(out) }
+                                }
+                            }
+                        }
+                    } catch (_: Exception) {}
                 }
 
                 // Start local HTTP server proxy
@@ -69,13 +82,10 @@ class TorrentEngine(private val context: Context) {
                         speedKbps = (2800..4500).random().toLong(),
                         peers = (16..32).random()
                     )
-                    delay(250)
+                    delay(200)
                 }
 
-                val isMkv = displayName.endsWith(".mkv", ignoreCase = true) || targetFile.name.endsWith(".mkv", ignoreCase = true)
-                val mimeType = if (isMkv) "video/x-matroska" else "video/mp4"
-
-                val streamUrl = "http://127.0.0.1:$port/${if (isMkv) "stream.mkv" else "stream.mp4"}"
+                val streamUrl = "http://127.0.0.1:$port/${targetFile.name}"
                 _state.value = TorrentState.Ready(
                     streamUrl = streamUrl,
                     fileName = displayName,

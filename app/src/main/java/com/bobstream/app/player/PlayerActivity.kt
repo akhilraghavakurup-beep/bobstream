@@ -148,14 +148,8 @@ class PlayerActivity : ComponentActivity() {
             mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) / maxVolume.toFloat())
         }
 
-        // Initialize ExoPlayer
-        LaunchedEffect(mediaUrl) {
-            if (mediaUrl.isBlank()) {
-                errorMessage = "Invalid stream URL"
-                return@LaunchedEffect
-            }
-
-            // 1. Build HTTP Data Source Factory with custom headers
+        val context = LocalContext.current
+        val playerInstance = remember(mediaUrl) {
             val userAgent = headers["User-Agent"] ?: "BobStream/1.0 (Android)"
             val httpDataSourceFactory = DefaultHttpDataSource.Factory()
                 .setUserAgent(userAgent)
@@ -168,7 +162,6 @@ class PlayerActivity : ComponentActivity() {
                 httpDataSourceFactory.setDefaultRequestProperties(customHeaders)
             }
 
-            // 2. Configure DRM session manager if needed
             val mediaSourceFactory = DefaultMediaSourceFactory(this@PlayerActivity)
                 .setDataSourceFactory(httpDataSourceFactory)
 
@@ -201,14 +194,8 @@ class PlayerActivity : ComponentActivity() {
                 else -> {}
             }
 
-            // Low-latency synchronized buffer tuning to prevent audio preceding video
             val loadControl = DefaultLoadControl.Builder()
-                .setBufferDurationsMs(
-                    1500,  // minBufferMs (reduced for fast startup)
-                    15000, // maxBufferMs
-                    800,   // bufferForPlaybackMs (synchronize A/V decode start)
-                    1200   // bufferForPlaybackAfterRebufferMs
-                )
+                .setBufferDurationsMs(1500, 15000, 800, 1200)
                 .setPrioritizeTimeOverSizeThresholds(true)
                 .build()
 
@@ -229,6 +216,10 @@ class PlayerActivity : ComponentActivity() {
 
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     isBuffering = (playbackState == Player.STATE_BUFFERING)
+                }
+
+                override fun onRenderedFirstFrame() {
+                    isBuffering = false
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
@@ -255,7 +246,14 @@ class PlayerActivity : ComponentActivity() {
             player.setMediaItem(mediaItemBuilder.build())
             player.prepare()
             player.playWhenReady = true
-            exoPlayer = player
+            player
+        }
+
+        DisposableEffect(playerInstance) {
+            exoPlayer = playerInstance
+            onDispose {
+                playerInstance.release()
+            }
         }
 
         Box(
@@ -263,23 +261,23 @@ class PlayerActivity : ComponentActivity() {
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            // AndroidView embedding ExoPlayer PlayerView
+            // AndroidView embedding ExoPlayer PlayerView using TextureView to eliminate black screen
             AndroidView(
                 factory = { ctx ->
                     PlayerView(ctx).apply {
                         useController = false
                         setResizeMode(ResizeMode.FIT.modeValue)
                         keepScreenOn = true
-                        player = exoPlayer
+                        // Use TextureView for seamless composition with Compose layers
+                        val textureView = android.view.TextureView(ctx)
+                        setVideoSurfaceView(textureView)
+                        player = playerInstance
                         playerView = this
                     }
                 },
                 update = { view ->
-                    if (view.player != exoPlayer) {
-                        view.player = exoPlayer
-                    }
+                    view.player = playerInstance
                     view.setResizeMode(resizeMode.modeValue)
-                    view.requestLayout()
                 },
                 modifier = Modifier.fillMaxSize()
             )
