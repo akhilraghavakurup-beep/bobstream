@@ -30,6 +30,7 @@ object StreamParser {
 
         var explicitScheme: String? = null
         var drmPayload: String? = null
+        val headers = mutableMapOf<String, String>()
 
         val pairs = queryPart.split("&")
         for (pair in pairs) {
