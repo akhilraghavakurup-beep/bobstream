@@ -134,23 +134,12 @@ fun MatchCard(
                     .fillMaxWidth()
                     .height(170.dp)
             ) {
-                if (match.image.isNotBlank()) {
-                    AsyncImage(
-                        model = match.image,
-                        contentDescription = match.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Brush.linearGradient(listOf(Color(0xFFE2E8F0), Color(0xFFCBD5E1)))),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(48.dp))
-                    }
-                }
+                AsyncImage(
+                    model = match.displayImage,
+                    contentDescription = match.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
 
                 // Gradient scrim at bottom of image
                 Box(

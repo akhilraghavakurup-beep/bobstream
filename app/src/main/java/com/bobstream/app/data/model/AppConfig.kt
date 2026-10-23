@@ -13,7 +13,14 @@ data class MatchItem(
     @SerialName("name") val name: String,
     @SerialName("image") val image: String = "",
     @SerialName("link") val link: String
-)
+) {
+    val displayImage: String
+        get() = if (image.isNotBlank()) image else DEFAULT_STREAM_IMAGE
+
+    companion object {
+        const val DEFAULT_STREAM_IMAGE = "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80"
+    }
+}
 
 enum class DrmScheme {
     NONE,
