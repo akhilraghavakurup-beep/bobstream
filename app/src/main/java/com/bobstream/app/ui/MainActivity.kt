@@ -123,7 +123,6 @@ fun MainScreen(
     val updateManager = remember { UpdateManager(context) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    var showSettingsDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
 
     // OTA update states
@@ -145,9 +144,6 @@ fun MainScreen(
                 actions = {
                     IconButton(onClick = { showAboutDialog = true }) {
                         Icon(Icons.Default.Info, contentDescription = "About", tint = Color.LightGray)
-                    }
-                    IconButton(onClick = { showSettingsDialog = true }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.LightGray)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -320,55 +316,6 @@ fun MainScreen(
             dismissButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
                     Text("Close", color = Color.Gray)
-                }
-            }
-        )
-    }
-
-    if (showSettingsDialog) {
-        var urlInput by remember { mutableStateOf(configRepository.getConfigUrl()) }
-
-        AlertDialog(
-            onDismissRequest = { showSettingsDialog = false },
-            containerColor = CardBackground,
-            shape = RoundedCornerShape(18.dp),
-            title = { Text("Config Source URL", color = Color.White, fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        "Update the remote GitHub JSON URL for live streams and movies list:",
-                        color = Color.LightGray,
-                        fontSize = 13.sp
-                    )
-                    OutlinedTextField(
-                        value = urlInput,
-                        onValueChange = { urlInput = it },
-                        singleLine = true,
-                        shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = NeonCyan
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        configRepository.setConfigUrl(urlInput)
-                        coroutineScope.launch { configRepository.refresh() }
-                        showSettingsDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = NeonCyan)
-                ) {
-                    Text("Save & Sync", color = Color.Black, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSettingsDialog = false }) {
-                    Text("Cancel", color = Color.Gray)
                 }
             }
         )
