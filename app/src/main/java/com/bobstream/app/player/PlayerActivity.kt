@@ -45,6 +45,7 @@ import kotlinx.coroutines.delay
 
 import android.app.PictureInPictureParams
 import android.os.Build
+import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.PlaybackParameters
 
 @UnstableApi
@@ -261,23 +262,22 @@ class PlayerActivity : ComponentActivity() {
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            // AndroidView embedding ExoPlayer PlayerView using TextureView to eliminate black screen
+            // AndroidView embedding ExoPlayer PlayerView
             AndroidView(
                 factory = { ctx ->
                     PlayerView(ctx).apply {
                         useController = false
                         setResizeMode(ResizeMode.FIT.modeValue)
                         keepScreenOn = true
-                        // Use TextureView for seamless composition with Compose layers
-                        val textureView = android.view.TextureView(ctx)
-                        setVideoSurfaceView(textureView)
                         player = playerInstance
                         playerView = this
+                        requestLayout()
                     }
                 },
                 update = { view ->
                     view.player = playerInstance
                     view.setResizeMode(resizeMode.modeValue)
+                    view.requestLayout()
                 },
                 modifier = Modifier.fillMaxSize()
             )
