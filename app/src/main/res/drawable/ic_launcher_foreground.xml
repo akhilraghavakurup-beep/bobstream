@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer Stream Ring Cyan to Violet -->
+    <path
+        android:strokeColor="#00F5FF"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M32,24 C44,18 64,18 76,24 C88,30 94,44 92,58 C90,70 80,82 66,86 C54,89 36,86 26,76" />
+
+    <path
+        android:strokeColor="#8A2BE2"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M24,42 C20,54 22,66 28,74 C34,82 46,86 58,86 C72,86 86,76 88,62" />
+
+    <!-- Sleek Neon Play Triangle in the Center -->
+    <path
+        android:fillColor="#00F5FF"
+        android:pathData="M46,38 L68,54 L46,70 Z" />
+    
+    <!-- Glow node dot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,54m-2.5,0a2.5,2.5 0,1,1 5,0a2.5,2.5 0,1,1 -5,0" />
+</vector>
