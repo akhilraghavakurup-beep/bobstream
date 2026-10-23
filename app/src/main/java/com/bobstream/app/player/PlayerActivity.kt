@@ -43,6 +43,10 @@ import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import kotlinx.coroutines.delay
 
+import android.app.PictureInPictureParams
+import android.os.Build
+import androidx.media3.common.PlaybackParameters
+
 @UnstableApi
 class PlayerActivity : ComponentActivity() {
 
@@ -58,6 +62,19 @@ class PlayerActivity : ComponentActivity() {
     private var exoPlayer: ExoPlayer? = null
     private var playerView: PlayerView? = null
     private lateinit var audioManager: AudioManager
+    private var isPip = mutableStateOf(false)
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: android.content.res.Configuration) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        isPip.value = isInPictureInPictureMode
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +124,7 @@ class PlayerActivity : ComponentActivity() {
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var currentPositionMs by remember { mutableLongStateOf(0L) }
         var durationMs by remember { mutableLongStateOf(0L) }
+        var currentSpeed by remember { mutableFloatStateOf(1.0f) }
         var isLandscape by remember { mutableStateOf(false) }
 
         // Progress polling loop
@@ -274,6 +292,8 @@ class PlayerActivity : ComponentActivity() {
                 currentResizeMode = resizeMode,
                 currentPositionMs = currentPositionMs,
                 durationMs = durationMs,
+                currentSpeed = currentSpeed,
+                isPipMode = isPip.value,
                 onPlayPauseToggle = {
                     exoPlayer?.let {
                         if (it.isPlaying) it.pause() else it.play()
@@ -316,6 +336,15 @@ class PlayerActivity : ComponentActivity() {
                             C.TRACK_TYPE_VIDEO
                         ).setShowDisableOption(false)
                         .build().show()
+                    }
+                },
+                onSpeedChange = { speed ->
+                    currentSpeed = speed
+                    exoPlayer?.playbackParameters = PlaybackParameters(speed)
+                },
+                onPipToggle = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        enterPictureInPictureMode(PictureInPictureParams.Builder().build())
                     }
                 },
                 onRotateScreenToggle = {

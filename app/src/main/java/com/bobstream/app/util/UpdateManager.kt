@@ -27,8 +27,8 @@ class UpdateManager(private val context: Context) {
         .build()
 
     companion object {
-        const val CURRENT_VERSION_NAME = "1.1.0"
-        const val CURRENT_VERSION_CODE = 2
+        const val CURRENT_VERSION_NAME = "1.2.0"
+        const val CURRENT_VERSION_CODE = 3
         private const val GITHUB_REPO = "akhilraghavakurup-beep/bobstream"
     }
 
