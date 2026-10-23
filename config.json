@@ -1,14 +1,14 @@
 {
   "matches": [
     {
-      "name": "Test 1: Live Golf HD (Akamai/FanCode)",
+      "name": "Test 1: Zim vs india ss digital",
       "image": "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&auto=format&fit=crop&q=80",
-      "link": "https://sonydaime.akamaized.net/hls/live/2120301/Golf_Gen2310/ENG/master.m3u8?hdnea=exp=1792778646~acl=*~id=1556784484fancode~hmac=97a6994adaff4017be58933cbbbfafd43b05658cb1f35d72b9dadbef2a57e9fc|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)&Referer=https://fancode.com/"
+      "link": "https://livetv.hotstar.com/mp1/gec-india-1540068250/1d0752e2f605404886fec4ab49cc3350/index.mpd?|cookie=hdntl=exp=1792821391~acl=%2f*~id=b360c069d5c32858ad5fcefcdc608d6d~data=hdntl~hmac=b33be9f6b9ae14855c5a6e6b3b5c68725d538da8cc47140bfde5fb2f33dbfc9a&referer=https://www.hotstar.com/&origin=https://www.hotstar.com&drmScheme=clearkey&drmLicense=14d0c8ee09944c32bafea44a987d0000:74d35f4034b14854bd3ca83dd3aa2fb1"
     },
     {
-      "name": "Test 3: FanCode Mumbai Live 1080p",
+      "name": "Test 2: Ind vs zim hind",
       "image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80",
-      "link": "https://in-mc-flive.fancode.com/mumbai/139978_english_hls_907152588e45860_1ta-di_h264/1080p5.m3u8?hdntl=Expires=1792814422~_GO=Generated~acl=/mumbai/139978_english_hls_907152588e45860_1ta-di_h264/*~SessionID=323736809_fc-tvwebapp-lg_7328050b-87df-40~Signature=ASgJGVDJvIfsqS41UvfDyofG4DJ2vZh4QSVj73EONvippMdtracEmQzZo6B6nvTC12vlyZ9jXtgzmkSK5uAH2sqRvhEI|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)&Referer=https://fancode.com/"
+      "link": "https://livetv.hotstar.com/mp2/gec-india-1540068298/9f99e1af0bdc465b8a3015e3a1a689d8/index.mpd?|cookie=hdntl=exp=1792821391~acl=%2f*~id=b360c069d5c32858ad5fcefcdc608d6d~data=hdntl~hmac=b33be9f6b9ae14855c5a6e6b3b5c68725d538da8cc47140bfde5fb2f33dbfc9a&referer=https://www.hotstar.com/&origin=https://www.hotstar.com&drmScheme=clearkey&drmLicense=effcadcbcc634296a6cf65e231f10000:569c794c69ea496e9ad1887f557ea4dc"
     }
   ],
   "movies": [
