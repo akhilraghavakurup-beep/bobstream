@@ -1,6 +1,21 @@
 {
   "matches": [
     {
+      "name": "1st Unofficial Test - Day 1 - 24 Oct 2026",
+      "image": "https://images.mykhel.com/img/2025/11/india-a-rishabh-pant-1762080093.jpg",
+      "link": "https://sonydaimenew.akamaized.net/hls/live/2120300/criclive2310/ENG/master.m3u8?hdnea=exp=1792840818~acl=/*~id=1d8a980e325c883d5eee163146440bb5-1792797618518~hmac=6a60549a80429687d4a6ae23c24658a97457bbba518f3cb7aed9461b29946cbe|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
+    },
+    {
+      "name": "1st Unofficial Test - Day 1 - 24 Oct 2026",
+      "image": "https://images.mykhel.com/img/2025/11/india-a-rishabh-pant-1762080093.jpg",
+      "link": "https://abn7ylpaaaaaaaame77ehqq2geew7.ta.bia-cf.live.pv-cdn.net/bom-nitro/live/clients/dash/enc/u4og1rywmm/out/v1/809b1c642b0e456fbebbcdc566e93e26/cenc.mpd|drmScheme=clearkey&drmLicense=GunxnawnX2Tpo9fzUWblug:KRl7HoWKhblKNpTmmz679w"
+    },
+    {
+      "name": "Live Stream",
+      "image": "https://static1.bigstockphoto.com/4/9/1/large1500/194654833.jpg",
+      "link": "https://sonydaime.akamaized.net/hls/live/2120300/criclive2310/ENG/std_lrh-800300010.m3u8?hdnea=exp=1792835046~acl=/*~id=11564014897681091313403330625592~hmac=4e9c01f59ed19d16cfbf6fb5503645f2ff83d09ad59939695a4373a25cc57a35|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
+    },
+    {
       "name": "Kaun Banega crorepati",
       "image": "https://images.news18.com/ibnlive/uploads/2021/08/studio_project-6-162868414816x9.jpeg",
       "link": "https://a100live-pv-ta-amazon.akamaized.net/bom-nitro/live/clients/dash/enc/nmd4mhjfix/out/v1/887099df693b471aa576d890c35b171b/cenc.mpd"
@@ -24,31 +39,6 @@
       "name": "Fancode link Al Nassr match anyone? [1080p]",
       "image": "https://i.ytimg.com/vi/0u3rhE8ZmyQ/maxresdefault.jpg",
       "link": "https://in-mc-flive.fancode.com/mumbai/4250266_english_hls_ade98728f479014_1ta-di_h264/1080p.m3u8?hdntl=Expires=1792847928~_GO=Generated~acl=/mumbai/4250266_english_hls_ade98728f479014_1ta-di_h264/*~SessionID=fc-app_sportsguruand_watcho_d11c6904-e8d2-4c~Signature=ASgJGVDvKaguYhvps3PIC-VYyMYyZ7ggc_VK9N-EEJmP7gZN8a8rxCj7Nf2Y6JjpoDc5FnJbj10gbmmpm1N5bQmgwpcJ"
-    },
-    {
-      "name": "AFG VS ZIM ODI TRI SERIES FINAL LIVE",
-      "image": "https://img-cdn.publive.online/fit-in/1200x675/crictoday-hindi/media/media_files/wp-content/uploads/2024/12/afg-vs-zim-pitch-report.webp",
-      "link": "https://pasteking.u0k.workers.dev/p2z0v.m3u8"
-    },
-    {
-      "name": "AFG VS ZIM ODI TRI SERIES FINAL LIVE [1080p]",
-      "image": "https://img-cdn.publive.online/fit-in/1200x675/crictoday-hindi/media/media_files/wp-content/uploads/2024/12/afg-vs-zim-pitch-report.webp",
-      "link": "https://in-mc-flive.fancode.com/mumbai/4249697_english_hls_7444655df2273_1ta-di_h264/1080p.m3u8?hdntl=Expires=1792839422~_GO=Generated~acl=/mumbai/4249697_english_hls_7444655df2273_1ta-di_h264/*~SessionID=fc-app_sportsguruand_watcho_2a95910b-65f3-48~Signature=ASgJGVAx9Xdoje_TUv90BdNo6E_Tchyf1vKmWUclAUjQFbRSLmJHWf9dVw1Hp4EJw4vwIeJzUNUK5chyzzUawVhVPx8J"
-    },
-    {
-      "name": "T sports",
-      "image": "https://i.ytimg.com/vi/xidHl984diQ/maxresdefault.jpg",
-      "link": "http://103.151.60.162:2122/play/a030/index.m3u8"
-    },
-    {
-      "name": "Final - Afghanistan vs Zimbabwe",
-      "image": "https://img.cricketnmore.com/uploads/2022/06/nabi--zadran-shines.jpg",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/jr2yukryn7/out/v1/2310db8f31c047c4b01ebd3ab96d815d/cenc.mpd"
-    },
-    {
-      "name": "Inter Kashi vs East Bengal FC - 23 Oct 2026 [HIN]",
-      "image": "https://assets.khelnow.com/news/uploads/2026/05/IK-VS-EBFC-Preview-Lead.jpg",
-      "link": "https://sonydaime.akamaized.net/hls/live/2094589/footlive2310/HIN/master.m3u8?hdnea=exp=1792772247~acl=/*~id=33623224856689263408327080039398~hmac=25a71a39912bc77d5e1f83ab7b7b9c29e66abe4ab571cb17a71eeb33bedbbb68|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
     }
   ]
 }
