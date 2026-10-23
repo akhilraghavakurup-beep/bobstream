@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobstream.app.data.model.DrmScheme
 import com.bobstream.app.data.model.StreamRequest
+import com.bobstream.app.util.StreamParser
 import com.bobstream.app.ui.theme.AccentGreen
 import com.bobstream.app.ui.theme.CardBackground
 import com.bobstream.app.ui.theme.CardBorder
