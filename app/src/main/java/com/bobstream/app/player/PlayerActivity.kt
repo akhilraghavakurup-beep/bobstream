@@ -38,6 +38,11 @@ import com.bobstream.app.ui.theme.BobStreamTheme
 import com.bobstream.app.ui.theme.NeonCyan
 import com.bobstream.app.util.StreamParser
 
+import android.content.pm.ActivityInfo
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import kotlinx.coroutines.delay
+
 @UnstableApi
 class PlayerActivity : ComponentActivity() {
 
@@ -100,6 +105,20 @@ class PlayerActivity : ComponentActivity() {
         var isBuffering by remember { mutableStateOf(true) }
         var resizeMode by remember { mutableStateOf(ResizeMode.FIT) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
+        var currentPositionMs by remember { mutableLongStateOf(0L) }
+        var durationMs by remember { mutableLongStateOf(0L) }
+        var isLandscape by remember { mutableStateOf(false) }
+
+        // Progress polling loop
+        LaunchedEffect(isPlaying) {
+            while (true) {
+                exoPlayer?.let { p ->
+                    currentPositionMs = p.currentPosition.coerceAtLeast(0L)
+                    durationMs = p.duration.coerceAtLeast(0L)
+                }
+                delay(500)
+            }
+        }
 
         // Brightness & Volume state
         var currentBrightness by remember {
@@ -164,8 +183,25 @@ class PlayerActivity : ComponentActivity() {
                 else -> {}
             }
 
-            val player = ExoPlayer.Builder(this@PlayerActivity)
+            // Low-latency synchronized buffer tuning to prevent audio preceding video
+            val loadControl = DefaultLoadControl.Builder()
+                .setBufferDurationsMs(
+                    1500,  // minBufferMs (reduced for fast startup)
+                    15000, // maxBufferMs
+                    800,   // bufferForPlaybackMs (synchronize A/V decode start)
+                    1200   // bufferForPlaybackAfterRebufferMs
+                )
+                .setPrioritizeTimeOverSizeThresholds(true)
+                .build()
+
+            val renderersFactory = DefaultRenderersFactory(this@PlayerActivity).apply {
+                setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+                setEnableDecoderFallback(true)
+            }
+
+            val player = ExoPlayer.Builder(this@PlayerActivity, renderersFactory)
                 .setMediaSourceFactory(mediaSourceFactory)
+                .setLoadControl(loadControl)
                 .build()
 
             player.addListener(object : Player.Listener {
@@ -190,7 +226,7 @@ class PlayerActivity : ComponentActivity() {
                             "DRM License negotiation failed. Check your ClearKey or Widevine license URL."
                         }
                         else -> {
-                            if (isTorrent) "Insufficient seeders or peer timeout streaming this magnet."
+                            if (isTorrent) "Torrent stream buffering error: ${error.localizedMessage ?: "Unknown error"}"
                             else "Playback error: ${error.localizedMessage ?: "Unknown error"}"
                         }
                     }
@@ -232,6 +268,8 @@ class PlayerActivity : ComponentActivity() {
                 isPlaying = isPlaying,
                 isBuffering = isBuffering,
                 currentResizeMode = resizeMode,
+                currentPositionMs = currentPositionMs,
+                durationMs = durationMs,
                 onPlayPauseToggle = {
                     exoPlayer?.let {
                         if (it.isPlaying) it.pause() else it.play()
@@ -244,6 +282,9 @@ class PlayerActivity : ComponentActivity() {
                         it.seekTo(target)
                     }
                 },
+                onSeekTo = { posMs ->
+                    exoPlayer?.seekTo(posMs)
+                },
                 onResizeModeToggle = {
                     val next = when (resizeMode) {
                         ResizeMode.FIT -> ResizeMode.FILL
@@ -252,14 +293,33 @@ class PlayerActivity : ComponentActivity() {
                     }
                     resizeMode = next
                 },
-                onOpenTrackSelector = {
+                onOpenAudioTrackSelector = {
                     exoPlayer?.let { player ->
                         TrackSelectionDialogBuilder(
                             this@PlayerActivity,
-                            "Audio & Subtitle Tracks",
+                            "Audio Track Selection",
                             player,
                             C.TRACK_TYPE_AUDIO
                         ).build().show()
+                    }
+                },
+                onOpenVideoQualitySelector = {
+                    exoPlayer?.let { player ->
+                        TrackSelectionDialogBuilder(
+                            this@PlayerActivity,
+                            "Stream Quality Selection",
+                            player,
+                            C.TRACK_TYPE_VIDEO
+                        ).setShowDisableOption(false)
+                        .build().show()
+                    }
+                },
+                onRotateScreenToggle = {
+                    isLandscape = !isLandscape
+                    requestedOrientation = if (isLandscape) {
+                        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                    } else {
+                        ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     }
                 },
                 onBrightnessChange = { delta ->

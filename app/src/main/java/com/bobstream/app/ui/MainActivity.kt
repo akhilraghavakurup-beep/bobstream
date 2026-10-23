@@ -170,8 +170,8 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Default.PlayCircleOutline, contentDescription = "Manual Stream") },
-                    label = { Text("Tester", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
+                    icon = { Icon(Icons.Default.PlayCircleOutline, contentDescription = "Stream") },
+                    label = { Text("Stream", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
                         selectedTextColor = NeonCyan,

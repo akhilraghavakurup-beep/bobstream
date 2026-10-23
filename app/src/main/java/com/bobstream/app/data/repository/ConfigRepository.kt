@@ -30,7 +30,7 @@ class ConfigRepository(private val context: Context) {
 
     companion object {
         const val KEY_CONFIG_URL = "remote_config_url"
-        const val DEFAULT_CONFIG_URL = "https://raw.githubusercontent.com/bobstream/config/main/config.json"
+        const val DEFAULT_CONFIG_URL = "https://raw.githubusercontent.com/akhilraghavakurup-beep/bobstream/main/config.json"
         private const val CACHE_FILE_NAME = "config_cache.json"
     }
 

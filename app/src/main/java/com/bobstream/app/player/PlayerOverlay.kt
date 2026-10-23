@@ -38,10 +38,15 @@ fun PlayerOverlay(
     isPlaying: Boolean,
     isBuffering: Boolean,
     currentResizeMode: ResizeMode,
+    currentPositionMs: Long,
+    durationMs: Long,
     onPlayPauseToggle: () -> Unit,
     onSeekRelative: (Long) -> Unit,
+    onSeekTo: (Long) -> Unit,
     onResizeModeToggle: () -> Unit,
-    onOpenTrackSelector: () -> Unit,
+    onOpenAudioTrackSelector: () -> Unit,
+    onOpenVideoQualitySelector: () -> Unit,
+    onRotateScreenToggle: () -> Unit,
     onBrightnessChange: (Float) -> Unit,
     onVolumeChange: (Float) -> Unit,
     onBack: () -> Unit,
@@ -54,7 +59,7 @@ fun PlayerOverlay(
     // Auto-hide controls after 5 seconds
     LaunchedEffect(controlsVisible, isPlaying) {
         if (controlsVisible && isPlaying) {
-            delay(4500)
+            delay(5000)
             controlsVisible = false
         }
     }
@@ -175,9 +180,9 @@ fun PlayerOverlay(
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                Color.Black.copy(alpha = 0.75f),
+                                Color.Black.copy(alpha = 0.85f),
                                 Color.Transparent,
-                                Color.Black.copy(alpha = 0.75f)
+                                Color.Black.copy(alpha = 0.85f)
                             )
                         )
                     )
@@ -197,18 +202,28 @@ fun PlayerOverlay(
                     Text(
                         text = title,
                         color = Color.White,
-                        fontSize = 16.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                     )
 
-                    // Track selector button (Audio & Subtitles)
-                    IconButton(onClick = onOpenTrackSelector) {
-                        Icon(Icons.Default.Subtitles, contentDescription = "Tracks", tint = Color.White)
+                    // Video Quality Selector
+                    IconButton(onClick = onOpenVideoQualitySelector) {
+                        Icon(Icons.Default.HighQuality, contentDescription = "Stream Quality", tint = NeonCyan)
                     }
 
-                    // Aspect ratio mode toggle
+                    // Audio Track Selector
+                    IconButton(onClick = onOpenAudioTrackSelector) {
+                        Icon(Icons.Default.Audiotrack, contentDescription = "Audio Track", tint = Color.White)
+                    }
+
+                    // Full Screen / Orientation Toggle
+                    IconButton(onClick = onRotateScreenToggle) {
+                        Icon(Icons.Default.ScreenRotation, contentDescription = "Rotate Screen", tint = Color.White)
+                    }
+
+                    // Aspect ratio mode toggle (Fit / Fill / Zoom)
                     OutlinedButton(
                         onClick = onResizeModeToggle,
                         shape = RoundedCornerShape(8.dp),
@@ -219,26 +234,111 @@ fun PlayerOverlay(
                     }
                 }
 
-                // Center Play/Pause button
-                if (!isBuffering) {
+                // Center Navigation Controls: 10s Rewind, Play/Pause, 10s Forward
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(36.dp)
+                ) {
+                    // Rewind 10s
                     IconButton(
-                        onClick = onPlayPauseToggle,
+                        onClick = { onSeekRelative(-10_000L) },
                         modifier = Modifier
-                            .size(68.dp)
-                            .align(Alignment.Center)
+                            .size(52.dp)
                             .clip(CircleShape)
                             .background(Color.Black.copy(alpha = 0.55f))
                     ) {
-                        Icon(
-                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (isPlaying) "Pause" else "Play",
-                            tint = NeonCyan,
-                            modifier = Modifier.size(38.dp)
+                        Icon(Icons.Default.Replay10, contentDescription = "Rewind 10s", tint = Color.White, modifier = Modifier.size(32.dp))
+                    }
+
+                    // Play / Pause Toggle
+                    if (!isBuffering) {
+                        IconButton(
+                            onClick = onPlayPauseToggle,
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.65f))
+                        ) {
+                            Icon(
+                                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                contentDescription = if (isPlaying) "Pause" else "Play",
+                                tint = NeonCyan,
+                                modifier = Modifier.size(42.dp)
+                            )
+                        }
+                    }
+
+                    // Forward 10s
+                    IconButton(
+                        onClick = { onSeekRelative(10_000L) },
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = 0.55f))
+                    ) {
+                        Icon(Icons.Default.Forward10, contentDescription = "Forward 10s", tint = Color.White, modifier = Modifier.size(32.dp))
+                    }
+                }
+
+                // Bottom Timeline & Progress Scrubber
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    if (durationMs > 0L) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(formatTimeMs(currentPositionMs), color = Color.White, fontSize = 12.sp)
+                            Text(formatTimeMs(durationMs), color = Color.Gray, fontSize = 12.sp)
+                        }
+                        Slider(
+                            value = (currentPositionMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f),
+                            onValueChange = { frac ->
+                                onSeekTo((frac * durationMs).toLong())
+                            },
+                            colors = SliderDefaults.colors(
+                                thumbColor = NeonCyan,
+                                activeTrackColor = NeonCyan,
+                                inactiveTrackColor = Color.DarkGray
+                            ),
+                            modifier = Modifier.fillMaxWidth().height(24.dp)
                         )
+                    } else {
+                        // Live stream indicator
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Red)
+                            )
+                            Text("LIVE BROADCAST", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+private fun formatTimeMs(timeMs: Long): String {
+    val totalSeconds = (timeMs / 1000).coerceAtLeast(0)
+    val seconds = totalSeconds % 60
+    val minutes = (totalSeconds / 60) % 60
+    val hours = totalSeconds / 3600
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%02d:%02d", minutes, seconds)
     }
 }
 

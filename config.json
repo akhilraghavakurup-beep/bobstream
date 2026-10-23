@@ -1,0 +1,21 @@
+{
+  "matches": [
+    {
+      "name": "Test 1: Live Golf HD (Akamai/FanCode)",
+      "image": "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&auto=format&fit=crop&q=80",
+      "link": "https://sonydaime.akamaized.net/hls/live/2120301/Golf_Gen2310/ENG/master.m3u8?hdnea=exp=1792778646~acl=*~id=1556784484fancode~hmac=97a6994adaff4017be58933cbbbfafd43b05658cb1f35d72b9dadbef2a57e9fc|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)&Referer=https://fancode.com/"
+    },
+    {
+      "name": "Test 3: FanCode Mumbai Live 1080p",
+      "image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80",
+      "link": "https://in-mc-flive.fancode.com/mumbai/139978_english_hls_907152588e45860_1ta-di_h264/1080p5.m3u8?hdntl=Expires=1792814422~_GO=Generated~acl=/mumbai/139978_english_hls_907152588e45860_1ta-di_h264/*~SessionID=323736809_fc-tvwebapp-lg_7328050b-87df-40~Signature=ASgJGVDJvIfsqS41UvfDyofG4DJ2vZh4QSVj73EONvippMdtracEmQzZo6B6nvTC12vlyZ9jXtgzmkSK5uAH2sqRvhEI|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)&Referer=https://fancode.com/"
+    }
+  ],
+  "movies": [
+    {
+      "name": "Test 2: Dorothy (2026) Tamil 720p HQ HDRip",
+      "photo": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80",
+      "magnet": "magnet:?xt=urn:btih:b57ef56f5a2a2b43e92553de6f31b288b19cab6b&dn=www.1TamilMV.solar%20-%20Dorothy%20%282026%29%20Tamil%20HQ%20HDRip%20-%20720p%20-%20x264%20-%20%28DD%2B5.1%20-%20192Kbps%20%26%20AAC%29%20-%201.4GB%20-%20ESub.mkv&xl=1671482773&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.com%3A1337%2Fannounce&tr=https%3A%2F%2Ftracker.moeblog.cn%3A443%2Fannounce&tr=udp%3A%2F%2Fopen.dstud.io%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.srv00.com%3A6969%2Fannounce&tr=https%3A%2F%2Ftracker.zhuqiy.com%3A443%2Fannounce&tr=https%3A%2F%2Ftracker.pmman.tech%3A443%2Fannounce"
+    }
+  ]
+}

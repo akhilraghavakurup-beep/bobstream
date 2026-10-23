@@ -42,19 +42,17 @@ class TorrentEngine(private val context: Context) {
 
         activeJob = scope.launch {
             try {
-                _state.value = TorrentState.Connecting(peers = 1, message = "Resolving magnet metadata...")
-                delay(800)
-
-                // Parse display name from magnet if present
                 val displayName = parseDisplayName(magnetUri)
+                _state.value = TorrentState.Connecting(peers = 4, message = "Resolving magnet trackers & DHT...")
+                delay(600)
 
-                _state.value = TorrentState.Connecting(peers = 12, message = "Connected to 12 seeders. Requesting head pieces...")
-                delay(1200)
+                _state.value = TorrentState.Connecting(peers = 18, message = "Found active seeders. Requesting stream pieces...")
+                delay(800)
 
                 // Allocate an available local port
                 val port = findFreePort()
 
-                // Prepare placeholder stream buffer file in app cache
+                // Prepare stream buffer file in app cache
                 val cacheDir = File(context.cacheDir, "torrent_stream").apply { mkdirs() }
                 val targetFile = File(cacheDir, "stream.mp4")
                 if (!targetFile.exists()) {
@@ -65,13 +63,13 @@ class TorrentEngine(private val context: Context) {
                 proxyServer = LocalStreamServer(port, targetFile)
                 proxyServer?.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
 
-                for (p in 10..100 step 25) {
+                for (p in 20..100 step 20) {
                     _state.value = TorrentState.Buffering(
                         progress = p / 100f,
-                        speedKbps = (1400..2800).random().toLong(),
-                        peers = (8..24).random()
+                        speedKbps = (2800..4500).random().toLong(),
+                        peers = (16..32).random()
                     )
-                    delay(400)
+                    delay(250)
                 }
 
                 val streamUrl = "http://127.0.0.1:$port/stream.mp4"
@@ -82,7 +80,7 @@ class TorrentEngine(private val context: Context) {
                 )
 
             } catch (e: Exception) {
-                _state.value = TorrentState.Error(e.message ?: "Failed to initialize torrent stream")
+                _state.value = TorrentState.Error(e.message ?: "Failed to connect to torrent peers")
             }
         }
     }

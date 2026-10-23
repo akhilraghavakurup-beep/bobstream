@@ -6,19 +6,9 @@
       "link": "https://sonydaime.akamaized.net/hls/live/2120301/Golf_Gen2310/ENG/master.m3u8?hdnea=exp=1792778646~acl=*~id=1556784484fancode~hmac=97a6994adaff4017be58933cbbbfafd43b05658cb1f35d72b9dadbef2a57e9fc|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)&Referer=https://fancode.com/"
     },
     {
-      "name": "ClearKey DRM Live Stream (Demo)",
+      "name": "Test 3: FanCode Mumbai Live 1080p",
       "image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80",
-      "link": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd|User-Agent=BobStream/1.0&drm_key=eb676abbcb345e96bbcf616630f1a3da:100b6c20940f779a4589152b57d2dacb"
-    },
-    {
-      "name": "Widevine DASH Protected Stream",
-      "image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&auto=format&fit=crop&q=80",
-      "link": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd|drm_key=https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-    },
-    {
-      "name": "24/7 Red Bull TV Extreme Live",
-      "image": "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800&auto=format&fit=crop&q=80",
-      "link": "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8|User-Agent=BobStream/1.0"
+      "link": "https://in-mc-flive.fancode.com/mumbai/139978_english_hls_907152588e45860_1ta-di_h264/1080p5.m3u8?hdntl=Expires=1792814422~_GO=Generated~acl=/mumbai/139978_english_hls_907152588e45860_1ta-di_h264/*~SessionID=323736809_fc-tvwebapp-lg_7328050b-87df-40~Signature=ASgJGVDJvIfsqS41UvfDyofG4DJ2vZh4QSVj73EONvippMdtracEmQzZo6B6nvTC12vlyZ9jXtgzmkSK5uAH2sqRvhEI|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)&Referer=https://fancode.com/"
     }
   ],
   "movies": [
@@ -26,21 +16,6 @@
       "name": "Test 2: Dorothy (2026) Tamil 720p HQ HDRip",
       "photo": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80",
       "magnet": "magnet:?xt=urn:btih:b57ef56f5a2a2b43e92553de6f31b288b19cab6b&dn=www.1TamilMV.solar%20-%20Dorothy%20%282026%29%20Tamil%20HQ%20HDRip%20-%20720p%20-%20x264%20-%20%28DD%2B5.1%20-%20192Kbps%20%26%20AAC%29%20-%201.4GB%20-%20ESub.mkv&xl=1671482773&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.com%3A1337%2Fannounce&tr=https%3A%2F%2Ftracker.moeblog.cn%3A443%2Fannounce&tr=udp%3A%2F%2Fopen.dstud.io%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.srv00.com%3A6969%2Fannounce&tr=https%3A%2F%2Ftracker.zhuqiy.com%3A443%2Fannounce&tr=https%3A%2F%2Ftracker.pmman.tech%3A443%2Fannounce"
-    },
-    {
-      "name": "Big Buck Bunny (1080p 60fps)",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/800px-Big_buck_bunny_poster_big.jpg",
-      "magnet": "magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337"
-    },
-    {
-      "name": "Tears of Steel (4K Sci-Fi)",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Tears_of_Steel_Poster.jpg/800px-Tears_of_Steel_Poster.jpg",
-      "magnet": "magnet:?xt=urn:btih:209c8226b299b308e24c4a46ae73407b29e6785b&dn=Tears+of+Steel&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopentor.org%3A2710&tr=udp%3A%2F%2Ftracker.ccc.de%3A80"
-    },
-    {
-      "name": "Cosmos Laundromat (Open Movie)",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Cosmos_Laundromat_-_First_Cycle_-_Poster.jpg/800px-Cosmos_Laundromat_-_First_Cycle_-_Poster.jpg",
-      "magnet": "magnet:?xt=urn:btih:c9e15763f722f23e98a29decd97d32699ecd4c46&dn=Cosmos+Laundromat&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337"
     }
   ]
 }
