@@ -52,6 +52,7 @@ fun PlayerOverlay(
     onSpeedChange: (Float) -> Unit,
     onPipToggle: () -> Unit,
     onRotateScreenToggle: () -> Unit,
+    onCastClick: () -> Unit,
     onBrightnessChange: (Float) -> Unit,
     onVolumeChange: (Float) -> Unit,
     onBack: () -> Unit,
@@ -281,6 +282,11 @@ fun PlayerOverlay(
                         maxLines = 1,
                         modifier = Modifier.weight(1f).padding(horizontal = 6.dp)
                     )
+
+                    // Cast / Share to External Devices & Players
+                    IconButton(onClick = onCastClick) {
+                        Icon(Icons.Default.Cast, contentDescription = "Cast / External Player", tint = Color.White)
+                    }
 
                     // Picture-in-Picture
                     IconButton(onClick = onPipToggle) {

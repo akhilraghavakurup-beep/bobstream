@@ -5,8 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AppConfig(
-    @SerialName("matches") val matches: List<MatchItem> = emptyList(),
-    @SerialName("movies") val movies: List<MovieItem> = emptyList()
+    @SerialName("matches") val matches: List<MatchItem> = emptyList()
 )
 
 @Serializable
@@ -14,13 +13,6 @@ data class MatchItem(
     @SerialName("name") val name: String,
     @SerialName("image") val image: String = "",
     @SerialName("link") val link: String
-)
-
-@Serializable
-data class MovieItem(
-    @SerialName("name") val name: String,
-    @SerialName("photo") val photo: String = "",
-    @SerialName("magnet") val magnet: String
 )
 
 enum class DrmScheme {
@@ -35,6 +27,6 @@ data class StreamRequest(
     val mediaUrl: String,
     val headers: Map<String, String> = emptyMap(),
     val drmScheme: DrmScheme = DrmScheme.NONE,
-    val drmKeyOrLicense: String? = null,
-    val isTorrent: Boolean = false
+    val drmKeyOrLicense: String? = null
 )
+

@@ -57,4 +57,16 @@ class StreamParserTest {
         assertTrue(jsonStr.contains("\"kid\":"))
         assertTrue(jsonStr.contains("\"k\":"))
     }
+
+    @Test
+    fun testParseDrmSchemeAndDrmLicense() {
+        val raw = "https://a96aivottlinear-a.akamaihd.net/cenc.mpd|drmScheme=clearkey&drmLicense=de4f7619ad148729aeb3fa269c66ac69:39f15c262064e93e317aefeb4d458cf0"
+        val req = StreamParser.parse("IND vs ZIM Women", raw)
+
+        assertEquals("IND vs ZIM Women", req.title)
+        assertEquals("https://a96aivottlinear-a.akamaihd.net/cenc.mpd", req.mediaUrl)
+        assertEquals(DrmScheme.CLEARKEY, req.drmScheme)
+        assertEquals("de4f7619ad148729aeb3fa269c66ac69:39f15c262064e93e317aefeb4d458cf0", req.drmKeyOrLicense)
+    }
 }
+

@@ -57,7 +57,6 @@ class PlayerActivity : ComponentActivity() {
         const val EXTRA_HEADERS = "extra_headers"
         const val EXTRA_DRM_SCHEME = "extra_drm_scheme"
         const val EXTRA_DRM_KEY = "extra_drm_key"
-        const val EXTRA_IS_TORRENT = "extra_is_torrent"
     }
 
     private var exoPlayer: ExoPlayer? = null
@@ -86,7 +85,6 @@ class PlayerActivity : ComponentActivity() {
         val mediaUrl = intent.getStringExtra(EXTRA_URL) ?: ""
         val drmSchemeName = intent.getStringExtra(EXTRA_DRM_SCHEME) ?: DrmScheme.NONE.name
         val drmKeyOrLicense = intent.getStringExtra(EXTRA_DRM_KEY)
-        val isTorrent = intent.getBooleanExtra(EXTRA_IS_TORRENT, false)
 
         val headersBundle = intent.getBundleExtra(EXTRA_HEADERS)
         val headers = mutableMapOf<String, String>()
@@ -102,7 +100,6 @@ class PlayerActivity : ComponentActivity() {
                     headers = headers,
                     drmScheme = DrmScheme.valueOf(drmSchemeName),
                     drmKeyOrLicense = drmKeyOrLicense,
-                    isTorrent = isTorrent,
                     onBack = { finish() }
                 )
             }
@@ -116,7 +113,6 @@ class PlayerActivity : ComponentActivity() {
         headers: Map<String, String>,
         drmScheme: DrmScheme,
         drmKeyOrLicense: String?,
-        isTorrent: Boolean,
         onBack: () -> Unit
     ) {
         var isPlaying by remember { mutableStateOf(true) }
@@ -167,7 +163,11 @@ class PlayerActivity : ComponentActivity() {
                 .setDataSourceFactory(httpDataSourceFactory)
 
             val mediaItemBuilder = MediaItem.Builder().setUri(Uri.parse(mediaUrl))
-            if (mediaUrl.endsWith(".mkv", ignoreCase = true)) {
+            if (mediaUrl.contains(".mpd", ignoreCase = true)) {
+                mediaItemBuilder.setMimeType(androidx.media3.common.MimeTypes.APPLICATION_MPD)
+            } else if (mediaUrl.contains(".m3u8", ignoreCase = true)) {
+                mediaItemBuilder.setMimeType(androidx.media3.common.MimeTypes.APPLICATION_M3U8)
+            } else if (mediaUrl.endsWith(".mkv", ignoreCase = true)) {
                 mediaItemBuilder.setMimeType(androidx.media3.common.MimeTypes.VIDEO_MATROSKA)
             } else if (mediaUrl.endsWith(".mp4", ignoreCase = true)) {
                 mediaItemBuilder.setMimeType(androidx.media3.common.MimeTypes.VIDEO_MP4)
@@ -181,8 +181,17 @@ class PlayerActivity : ComponentActivity() {
                             val callback = LocalMediaDrmCallback(w3cJsonBytes)
                             val drmManager = DefaultDrmSessionManager.Builder()
                                 .setUuidAndExoMediaDrmProvider(C.CLEARKEY_UUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
+                                .setMultiSession(true)
+                                .setPlayClearSamplesWithoutKeys(true)
                                 .build(callback)
                             mediaSourceFactory.setDrmSessionManagerProvider { drmManager }
+
+                            // Also attach declarative DrmConfiguration so manifest cenc elements bind seamlessly
+                            val drmConfig = MediaItem.DrmConfiguration.Builder(C.CLEARKEY_UUID)
+                                .setMultiSession(true)
+                                .setForceDefaultLicenseUri(false)
+                                .build()
+                            mediaItemBuilder.setDrmConfiguration(drmConfig)
                         } catch (e: Exception) {
                             errorMessage = "Failed to parse ClearKey parameters: ${e.message}"
                         }
@@ -193,8 +202,16 @@ class PlayerActivity : ComponentActivity() {
                         val callback = HttpMediaDrmCallback(drmKeyOrLicense, httpDataSourceFactory)
                         val drmManager = DefaultDrmSessionManager.Builder()
                             .setUuidAndExoMediaDrmProvider(C.WIDEVINE_UUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
+                            .setMultiSession(true)
                             .build(callback)
                         mediaSourceFactory.setDrmSessionManagerProvider { drmManager }
+
+                        val drmConfig = MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                            .setLicenseUri(drmKeyOrLicense)
+                            .setMultiSession(true)
+                            .setForceDefaultLicenseUri(true)
+                            .build()
+                        mediaItemBuilder.setDrmConfiguration(drmConfig)
                     }
                 }
                 else -> {}
@@ -241,8 +258,7 @@ class PlayerActivity : ComponentActivity() {
                             "DRM License negotiation failed. Check your ClearKey or Widevine license URL."
                         }
                         else -> {
-                            if (isTorrent) "Torrent stream buffering error: ${error.localizedMessage ?: "Unknown error"}"
-                            else "Playback error: ${error.localizedMessage ?: "Unknown error"}"
+                            "Playback error: ${error.localizedMessage ?: "Unknown error"}"
                         }
                     }
                     errorMessage = message
@@ -356,6 +372,29 @@ class PlayerActivity : ComponentActivity() {
                         ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                     } else {
                         ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    }
+                },
+                onCastClick = {
+                    try {
+                        val mime = when {
+                            mediaUrl.contains(".mpd", ignoreCase = true) -> "application/dash+xml"
+                            mediaUrl.contains(".m3u8", ignoreCase = true) -> "application/x-mpegURL"
+                            mediaUrl.endsWith(".mp4", ignoreCase = true) -> "video/mp4"
+                            mediaUrl.endsWith(".mkv", ignoreCase = true) -> "video/x-matroska"
+                            else -> "video/*"
+                        }
+                        val castIntent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(Uri.parse(mediaUrl), mime)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            putExtra("title", title)
+                            headers.forEach { (k, v) ->
+                                putExtra(k, v)
+                            }
+                        }
+                        val chooser = Intent.createChooser(castIntent, "Cast / Play stream via external device or app")
+                        startActivity(chooser)
+                    } catch (e: Exception) {
+                        errorMessage = "No external player or casting app found: ${e.message}"
                     }
                 },
                 onBrightnessChange = { delta ->

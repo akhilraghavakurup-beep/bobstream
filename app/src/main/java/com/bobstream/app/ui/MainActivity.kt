@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsSoccer
@@ -23,12 +22,9 @@ import androidx.lifecycle.lifecycleScope
 import com.bobstream.app.data.model.StreamRequest
 import com.bobstream.app.data.repository.ConfigRepository
 import com.bobstream.app.player.PlayerActivity
-import com.bobstream.app.torrent.TorrentEngine
-import com.bobstream.app.torrent.TorrentState
 import com.bobstream.app.ui.components.BobStreamLogo
 import com.bobstream.app.ui.tabs.ManualStreamTab
 import com.bobstream.app.ui.tabs.MatchesTab
-import com.bobstream.app.ui.tabs.MoviesTab
 import com.bobstream.app.ui.theme.BobStreamTheme
 import com.bobstream.app.ui.theme.CardBackground
 import com.bobstream.app.ui.theme.DarkBackground
@@ -48,38 +44,20 @@ import com.bobstream.app.util.UpdateManager
 class MainActivity : ComponentActivity() {
 
     private lateinit var configRepository: ConfigRepository
-    private lateinit var torrentEngine: TorrentEngine
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         configRepository = ConfigRepository(applicationContext)
-        torrentEngine = TorrentEngine(applicationContext)
 
         lifecycleScope.launch {
             configRepository.initialize()
-        }
-
-        // Listen for torrent state ready to launch player
-        lifecycleScope.launch {
-            torrentEngine.state.collect { state ->
-                if (state is TorrentState.Ready) {
-                    launchPlayer(
-                        StreamRequest(
-                            title = state.fileName,
-                            mediaUrl = state.streamUrl,
-                            isTorrent = true
-                        )
-                    )
-                }
-            }
         }
 
         setContent {
             BobStreamTheme {
                 MainScreen(
                     configRepository = configRepository,
-                    torrentEngine = torrentEngine,
                     onLaunchStream = { req -> launchPlayer(req) }
                 )
             }
@@ -87,17 +65,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchPlayer(request: StreamRequest) {
-        if (request.isTorrent && request.mediaUrl.startsWith("magnet:", ignoreCase = true)) {
-            torrentEngine.startMagnetStream(request.mediaUrl)
-            return
-        }
-
         val intent = Intent(this, PlayerActivity::class.java).apply {
             putExtra(PlayerActivity.EXTRA_TITLE, request.title)
             putExtra(PlayerActivity.EXTRA_URL, request.mediaUrl)
             putExtra(PlayerActivity.EXTRA_DRM_SCHEME, request.drmScheme.name)
             putExtra(PlayerActivity.EXTRA_DRM_KEY, request.drmKeyOrLicense)
-            putExtra(PlayerActivity.EXTRA_IS_TORRENT, request.isTorrent)
 
             val headersBundle = Bundle()
             request.headers.forEach { (k, v) -> headersBundle.putString(k, v) }
@@ -105,18 +77,12 @@ class MainActivity : ComponentActivity() {
         }
         startActivity(intent)
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        torrentEngine.stop()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     configRepository: ConfigRepository,
-    torrentEngine: TorrentEngine,
     onLaunchStream: (StreamRequest) -> Unit
 ) {
     val context = LocalContext.current
@@ -133,7 +99,6 @@ fun MainScreen(
 
     val config by configRepository.configState.collectAsState()
     val isRefreshing by configRepository.isRefreshing.collectAsState()
-    val torrentState by torrentEngine.state.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -173,22 +138,8 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.Movie, contentDescription = "Movies") },
-                    label = { Text("Movies", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.White,
-                        selectedTextColor = NeonCyan,
-                        indicatorColor = NeonCyan,
-                        unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
-                        unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Default.PlayCircleOutline, contentDescription = "Stream") },
-                    label = { Text("Stream", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
+                    label = { Text("Stream", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.White,
                         selectedTextColor = NeonCyan,
@@ -216,15 +167,7 @@ fun MainScreen(
                         onLaunchStream(request)
                     }
                 )
-                1 -> MoviesTab(
-                    movies = config.movies,
-                    torrentState = torrentState,
-                    onMovieClick = { movie ->
-                        torrentEngine.startMagnetStream(movie.magnet)
-                    },
-                    onCancelTorrent = { torrentEngine.stop() }
-                )
-                2 -> ManualStreamTab(
+                1 -> ManualStreamTab(
                     onPlayStream = { request -> onLaunchStream(request) }
                 )
             }

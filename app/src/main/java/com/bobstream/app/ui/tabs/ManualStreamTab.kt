@@ -63,7 +63,7 @@ fun ManualStreamTab(
             color = com.bobstream.app.ui.theme.TextPrimary
         )
         Text(
-            text = "Paste any manual stream URL, HLS/DASH manifest, or torrent magnet link. Supports pipe syntax (|) or explicit headers & DRM.",
+            text = "Paste any manual stream URL (HLS .m3u8, DASH .mpd, HTTP/HTTPS). Supports pipe syntax (|) or explicit headers & DRM.",
             fontSize = 13.sp,
             color = com.bobstream.app.ui.theme.TextSecondary
         )
@@ -72,8 +72,8 @@ fun ManualStreamTab(
         StreamInputField(
             value = streamUrl,
             onValueChange = { streamUrl = it },
-            label = "Stream URL or Magnet Link *",
-            placeholder = "https://... or magnet:?xt=urn:..."
+            label = "Stream URL (HLS / DASH / MP4) *",
+            placeholder = "https://.../manifest.mpd or master.m3u8"
         )
 
         // Headers section
@@ -161,9 +161,7 @@ fun ManualStreamTab(
                 if (streamUrl.isNotBlank() && !isLaunching) {
                     isLaunching = true
                     val trimmed = streamUrl.trim()
-                    val isMagnet = trimmed.startsWith("magnet:", ignoreCase = true)
-
-                    val request = if (trimmed.contains("|") && !isMagnet) {
+                    val request = if (trimmed.contains("|")) {
                         StreamParser.parse(title = "Custom Stream", rawLink = trimmed)
                     } else {
                         val headersMap = mutableMapOf<String, String>()
@@ -173,12 +171,11 @@ fun ManualStreamTab(
                         if (cookie.isNotBlank()) headersMap["Cookie"] = cookie.trim()
 
                         StreamRequest(
-                            title = if (isMagnet) "Torrent Stream" else "Custom Stream",
+                            title = "Custom Stream",
                             mediaUrl = trimmed,
                             headers = headersMap,
                             drmScheme = drmScheme,
-                            drmKeyOrLicense = drmKeyOrLicense.trim().ifEmpty { null },
-                            isTorrent = isMagnet
+                            drmKeyOrLicense = drmKeyOrLicense.trim().ifEmpty { null }
                         )
                     }
                     onPlayStream(request)

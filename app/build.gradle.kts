@@ -13,8 +13,8 @@ android {
         applicationId = "com.bobstream.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.3.1"
+        versionCode = 6
+        versionName = "1.3.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -80,14 +80,6 @@ dependencies {
 
     // Image loading
     implementation(libs.coil.compose)
-
-    // Local HTTP proxy for torrent streaming
-    implementation(libs.nanohttpd)
-
-    // Real Native BitTorrent Engine (libtorrent4j)
-    implementation("org.libtorrent4j:libtorrent4j:2.1.0-39")
-    implementation("org.libtorrent4j:libtorrent4j-android-arm:2.1.0-39")
-    implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.1.0-39")
 
     // Testing
     testImplementation(libs.junit)

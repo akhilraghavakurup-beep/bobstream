@@ -28,8 +28,8 @@ object StreamParser {
         val baseUrl = parts[0].trim()
         val queryPart = parts.getOrNull(1)?.trim().orEmpty()
 
-        val headers = mutableMapOf<String, String>()
-        var drmKeyVal: String? = null
+        var explicitScheme: String? = null
+        var drmPayload: String? = null
 
         val pairs = queryPart.split("&")
         for (pair in pairs) {
@@ -43,15 +43,26 @@ object StreamParser {
                     rawValue
                 }
 
-                if (key.equals("drm_key", ignoreCase = true) || key.equals("drm", ignoreCase = true) || key.equals("key", ignoreCase = true)) {
-                    drmKeyVal = value
-                } else {
-                    headers[key] = value
+                when {
+                    key.equals("drmScheme", ignoreCase = true) || key.equals("scheme", ignoreCase = true) -> {
+                        explicitScheme = value
+                    }
+                    key.equals("drmLicense", ignoreCase = true) ||
+                    key.equals("drm_license", ignoreCase = true) ||
+                    key.equals("license", ignoreCase = true) ||
+                    key.equals("drm_key", ignoreCase = true) ||
+                    key.equals("drm", ignoreCase = true) ||
+                    key.equals("key", ignoreCase = true) -> {
+                        drmPayload = value
+                    }
+                    else -> {
+                        headers[key] = value
+                    }
                 }
             }
         }
 
-        val (scheme, resolvedDrm) = resolveDrm(drmKeyVal)
+        val (scheme, resolvedDrm) = resolveDrm(drmPayload, explicitScheme)
 
         return StreamRequest(
             title = title,
@@ -68,11 +79,20 @@ object StreamParser {
      * - ClearKey hex pair: "kidHex:keyHex"
      * - Widevine HTTP license: "https://..."
      */
-    fun resolveDrm(drmKeyInput: String?): Pair<DrmScheme, String?> {
+    fun resolveDrm(drmKeyInput: String?, explicitScheme: String? = null): Pair<DrmScheme, String?> {
         if (drmKeyInput.isNullOrBlank()) {
             return Pair(DrmScheme.NONE, null)
         }
         val clean = drmKeyInput.trim()
+
+        if (!explicitScheme.isNullOrBlank()) {
+            val schemeLower = explicitScheme.trim().lowercase()
+            when {
+                schemeLower.contains("clearkey") -> return Pair(DrmScheme.CLEARKEY, clean)
+                schemeLower.contains("widevine") -> return Pair(DrmScheme.WIDEVINE, clean)
+                schemeLower.contains("playready") -> return Pair(DrmScheme.PLAYREADY, clean)
+            }
+        }
 
         return when {
             clean.startsWith("http://", ignoreCase = true) || clean.startsWith("https://", ignoreCase = true) -> {
