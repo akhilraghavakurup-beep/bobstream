@@ -21,7 +21,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.bobstream.app.R
 import com.bobstream.app.data.model.MatchItem
 import com.bobstream.app.ui.theme.AccentRed
 import com.bobstream.app.ui.theme.CardBackground
@@ -134,8 +137,15 @@ fun MatchCard(
                     .fillMaxWidth()
                     .height(170.dp)
             ) {
+                val context = LocalContext.current
                 AsyncImage(
-                    model = match.displayImage,
+                    model = ImageRequest.Builder(context)
+                        .data(match.displayImage)
+                        .crossfade(true)
+                        .placeholder(R.drawable.default_sports_banner)
+                        .error(R.drawable.default_sports_banner)
+                        .fallback(R.drawable.default_sports_banner)
+                        .build(),
                     contentDescription = match.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

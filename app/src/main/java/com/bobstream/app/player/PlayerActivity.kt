@@ -403,11 +403,13 @@ class PlayerActivity : ComponentActivity() {
                     val lp = window.attributes
                     lp.screenBrightness = currentBrightness
                     window.attributes = lp
+                    currentBrightness
                 },
                 onVolumeChange = { delta ->
                     currentVolume = (currentVolume + delta).coerceIn(0f, 1f)
                     val newVolumeInt = (currentVolume * maxVolume).toInt()
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolumeInt, 0)
+                    currentVolume
                 },
                 onBack = onBack
             )

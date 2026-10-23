@@ -13,12 +13,23 @@ android {
         applicationId = "com.bobstream.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.3.2"
+        versionCode = 7
+        versionName = "1.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("bobstream.p12")
+            storePassword = "bobstream2026"
+            keyAlias = "bobstream"
+            keyPassword = "bobstream2026"
+            enableV1Signing = true
+            enableV2Signing = true
         }
     }
 
@@ -29,7 +40,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

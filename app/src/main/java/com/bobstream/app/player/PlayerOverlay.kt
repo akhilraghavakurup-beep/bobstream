@@ -3,6 +3,8 @@ package com.bobstream.app.player
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -53,8 +55,8 @@ fun PlayerOverlay(
     onPipToggle: () -> Unit,
     onRotateScreenToggle: () -> Unit,
     onCastClick: () -> Unit,
-    onBrightnessChange: (Float) -> Unit,
-    onVolumeChange: (Float) -> Unit,
+    onBrightnessChange: (Float) -> Float,
+    onVolumeChange: (Float) -> Float,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -84,6 +86,20 @@ fun PlayerOverlay(
         }
     }
 
+    LaunchedEffect(brightnessFeedback) {
+        if (brightnessFeedback != null) {
+            delay(1200)
+            brightnessFeedback = null
+        }
+    }
+
+    LaunchedEffect(volumeFeedback) {
+        if (volumeFeedback != null) {
+            delay(1200)
+            volumeFeedback = null
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
 
         // Touch & Gesture Interaction Layer (Active only when unlocked)
@@ -106,8 +122,9 @@ fun PlayerOverlay(
                         .pointerInput(Unit) {
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
-                                val delta = -dragAmount.y / 800f
-                                onBrightnessChange(delta)
+                                val delta = -dragAmount.y / 600f
+                                val updatedLevel = onBrightnessChange(delta)
+                                brightnessFeedback = updatedLevel
                             }
                         }
                 )
@@ -141,8 +158,9 @@ fun PlayerOverlay(
                         .pointerInput(Unit) {
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
-                                val delta = -dragAmount.y / 600f
-                                onVolumeChange(delta)
+                                val delta = -dragAmount.y / 500f
+                                val updatedLevel = onVolumeChange(delta)
+                                volumeFeedback = updatedLevel
                             }
                         }
                 )
@@ -213,23 +231,35 @@ fun PlayerOverlay(
             }
         }
 
-        // Gesture Feedback HUDs
-        brightnessFeedback?.let { level ->
-            GestureIndicator(
-                icon = Icons.Default.BrightnessMedium,
-                label = "Brightness",
-                progress = level,
-                modifier = Modifier.align(Alignment.CenterStart).padding(start = 28.dp)
-            )
+        // Gesture Feedback HUDs with smooth enter/exit animations
+        AnimatedVisibility(
+            visible = brightnessFeedback != null,
+            enter = fadeIn() + slideInHorizontally { -it / 2 },
+            exit = fadeOut() + slideOutHorizontally { -it / 2 },
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 28.dp)
+        ) {
+            brightnessFeedback?.let { level ->
+                GestureIndicator(
+                    icon = Icons.Default.BrightnessMedium,
+                    label = "Brightness",
+                    progress = level
+                )
+            }
         }
 
-        volumeFeedback?.let { level ->
-            GestureIndicator(
-                icon = Icons.Default.VolumeUp,
-                label = "Volume",
-                progress = level,
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 28.dp)
-            )
+        AnimatedVisibility(
+            visible = volumeFeedback != null,
+            enter = fadeIn() + slideInHorizontally { it / 2 },
+            exit = fadeOut() + slideOutHorizontally { it / 2 },
+            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 28.dp)
+        ) {
+            volumeFeedback?.let { level ->
+                GestureIndicator(
+                    icon = if (level <= 0.01f) Icons.Default.VolumeMute else Icons.Default.VolumeUp,
+                    label = "Volume",
+                    progress = level
+                )
+            }
         }
 
         // Buffering Spinner (always visible if buffering)
@@ -496,21 +526,34 @@ fun GestureIndicator(
     progress: Float,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xDD121824),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x3300E5FF)),
+        shadowElevation = 8.dp,
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.Black.copy(alpha = 0.7f))
-            .padding(10.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(24.dp))
-        LinearProgressIndicator(
-            progress = { progress.coerceIn(0f, 1f) },
-            color = NeonCyan,
-            trackColor = Color.DarkGray,
-            modifier = Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp))
-        )
-        Text("${(progress * 100).toInt()}%", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
+            Icon(icon, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(28.dp))
+            LinearProgressIndicator(
+                progress = { progress.coerceIn(0f, 1f) },
+                color = NeonCyan,
+                trackColor = Color(0x44FFFFFF),
+                modifier = Modifier
+                    .width(54.dp)
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp))
+            )
+            Text(
+                text = "$label ${(progress * 100).toInt()}%",
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

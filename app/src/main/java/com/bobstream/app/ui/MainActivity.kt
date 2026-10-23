@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.Settings
@@ -32,6 +34,7 @@ import com.bobstream.app.ui.theme.NeonCyan
 import com.bobstream.app.ui.theme.SurfaceDark
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import com.bobstream.app.ui.theme.CardBorder
 import android.widget.Toast
 import androidx.compose.material.icons.filled.Info
@@ -102,74 +105,118 @@ fun MainScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { BobStreamLogo() },
-                actions = {
-                    IconButton(onClick = { showAboutDialog = true }) {
-                        Icon(Icons.Default.Info, contentDescription = "About", tint = com.bobstream.app.ui.theme.TextSecondary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
-            )
-        },
-        bottomBar = {
-            NavigationBar(
-                containerColor = Color.White,
-                tonalElevation = 6.dp
-            ) {
-                NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    icon = { Icon(Icons.Default.SportsSoccer, contentDescription = "Matches") },
-                    label = { Text("Matches", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.White,
-                        selectedTextColor = NeonCyan,
-                        indicatorColor = NeonCyan,
-                        unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
-                        unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
-                    )
-                )
+    var showSplash by remember { mutableStateOf(true) }
+    val splashAlpha = remember { Animatable(1f) }
+    val splashScale = remember { Animatable(0.85f) }
 
-                NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.PlayCircleOutline, contentDescription = "Stream") },
-                    label = { Text("Stream", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.White,
-                        selectedTextColor = NeonCyan,
-                        indicatorColor = NeonCyan,
-                        unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
-                        unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
+    LaunchedEffect(Unit) {
+        splashScale.animateTo(
+            targetValue = 1.05f,
+            animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
+        )
+        kotlinx.coroutines.delay(200)
+        splashAlpha.animateTo(
+            targetValue = 0f,
+            animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing)
+        )
+        showSplash = false
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { BobStreamLogo() },
+                    actions = {
+                        IconButton(onClick = { showAboutDialog = true }) {
+                            Icon(Icons.Default.Info, contentDescription = "About", tint = com.bobstream.app.ui.theme.TextSecondary)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White
                     )
                 )
+            },
+            bottomBar = {
+                NavigationBar(
+                    containerColor = Color.White,
+                    tonalElevation = 6.dp
+                ) {
+                    NavigationBarItem(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        icon = { Icon(Icons.Default.SportsSoccer, contentDescription = "Matches") },
+                        label = { Text("Matches", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.White,
+                            selectedTextColor = NeonCyan,
+                            indicatorColor = NeonCyan,
+                            unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
+                            unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        icon = { Icon(Icons.Default.PlayCircleOutline, contentDescription = "Stream") },
+                        label = { Text("Stream", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.White,
+                            selectedTextColor = NeonCyan,
+                            indicatorColor = NeonCyan,
+                            unselectedIconColor = com.bobstream.app.ui.theme.TextSecondary,
+                            unselectedTextColor = com.bobstream.app.ui.theme.TextSecondary
+                        )
+                    )
+                }
+            },
+            containerColor = com.bobstream.app.ui.theme.SurfaceLight
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                when (selectedTab) {
+                    0 -> MatchesTab(
+                        matches = config.matches,
+                        isRefreshing = isRefreshing,
+                        onRefresh = { coroutineScope.launch { configRepository.refresh() } },
+                        onMatchClick = { match ->
+                            val request = StreamParser.parse(match.name, match.link)
+                            onLaunchStream(request)
+                        }
+                    )
+                    1 -> ManualStreamTab(
+                        onPlayStream = { request -> onLaunchStream(request) }
+                    )
+                }
             }
-        },
-        containerColor = com.bobstream.app.ui.theme.SurfaceLight
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            when (selectedTab) {
-                0 -> MatchesTab(
-                    matches = config.matches,
-                    isRefreshing = isRefreshing,
-                    onRefresh = { coroutineScope.launch { configRepository.refresh() } },
-                    onMatchClick = { match ->
-                        val request = StreamParser.parse(match.name, match.link)
-                        onLaunchStream(request)
-                    }
-                )
-                1 -> ManualStreamTab(
-                    onPlayStream = { request -> onLaunchStream(request) }
-                )
+        }
+
+        // App Launch Splash Animation Overlay
+        if (showSplash) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White.copy(alpha = splashAlpha.value))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.scale(splashScale.value)
+                ) {
+                    BobStreamLogo(iconSize = 64.dp, showText = true)
+                    Text(
+                        text = "Premium Live & DRM Streaming",
+                        color = com.bobstream.app.ui.theme.TextSecondary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

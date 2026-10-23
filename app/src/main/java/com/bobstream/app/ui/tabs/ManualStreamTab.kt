@@ -8,27 +8,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobstream.app.data.model.DrmScheme
 import com.bobstream.app.data.model.StreamRequest
+import com.bobstream.app.data.repository.StreamHistoryItem
+import com.bobstream.app.data.repository.StreamHistoryManager
 import com.bobstream.app.util.StreamParser
-import com.bobstream.app.ui.theme.AccentGreen
 import com.bobstream.app.ui.theme.CardBackground
 import com.bobstream.app.ui.theme.CardBorder
 import com.bobstream.app.ui.theme.NeonCyan
-import com.bobstream.app.ui.theme.NeonPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +37,10 @@ fun ManualStreamTab(
     onPlayStream: (StreamRequest) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val historyManager = remember { StreamHistoryManager(context) }
+    var historyItems by remember { mutableStateOf(historyManager.getHistory()) }
+
     var streamUrl by remember { mutableStateOf("") }
     var userAgent by remember { mutableStateOf("") }
     var referer by remember { mutableStateOf("") }
@@ -102,14 +107,13 @@ fun ManualStreamTab(
                 value = cookie,
                 onValueChange = { cookie = it },
                 label = "Cookie",
-                placeholder = "name=val; ...",
+                placeholder = "session=...",
                 modifier = Modifier.weight(1f)
             )
         }
 
         // DRM section
-        Text("DRM Configuration (Optional)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = NeonPurple)
-
+        Text("DRM Decryption (Optional)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = NeonCyan)
         ExposedDropdownMenuBox(
             expanded = drmDropdownExpanded,
             onExpandedChange = { drmDropdownExpanded = !drmDropdownExpanded }
@@ -119,20 +123,20 @@ fun ManualStreamTab(
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("DRM Scheme", color = com.bobstream.app.ui.theme.TextSecondary) },
-                trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = NeonCyan) },
+                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = NeonCyan) },
                 shape = RoundedCornerShape(12.dp),
                 colors = fieldColors(),
-                modifier = Modifier.fillMaxWidth().menuAnchor()
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
             )
-
             ExposedDropdownMenu(
                 expanded = drmDropdownExpanded,
-                onDismissRequest = { drmDropdownExpanded = false },
-                modifier = Modifier.background(Color.White)
+                onDismissRequest = { drmDropdownExpanded = false }
             ) {
                 DrmScheme.values().forEach { scheme ->
                     DropdownMenuItem(
-                        text = { Text(scheme.name, color = com.bobstream.app.ui.theme.TextPrimary) },
+                        text = { Text(scheme.name) },
                         onClick = {
                             drmScheme = scheme
                             drmDropdownExpanded = false
@@ -151,7 +155,7 @@ fun ManualStreamTab(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
 
         var isLaunching by remember { mutableStateOf(false) }
 
@@ -178,56 +182,169 @@ fun ManualStreamTab(
                             drmKeyOrLicense = drmKeyOrLicense.trim().ifEmpty { null }
                         )
                     }
+                    historyManager.addStream(request)
+                    historyItems = historyManager.getHistory()
                     onPlayStream(request)
                     isLaunching = false
                 }
             },
             enabled = !isLaunching && streamUrl.isNotBlank(),
             shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
+        ) {
+            if (isLaunching) {
+                CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.5.dp)
+                Spacer(Modifier.width(10.dp))
+                Text("LAUNCHING STREAM...", color = Color.White, fontWeight = FontWeight.Black, fontSize = 15.sp)
+            } else {
+                Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
+                Spacer(Modifier.width(8.dp))
+                Text("PLAY STREAM", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
+            }
+        }
+
+        // Recent Stream History
+        if (historyItems.isNotEmpty()) {
+            Spacer(Modifier.height(10.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isLaunching) {
-                    CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.5.dp)
-                    Spacer(Modifier.width(10.dp))
-                    Text("LAUNCHING STREAM...", color = Color.White, fontWeight = FontWeight.Black, fontSize = 15.sp)
-                } else {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
-                    Spacer(Modifier.width(8.dp))
-                    Text("PLAY STREAM", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Default.History, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(20.dp))
+                    Text(
+                        text = "Recent Stream History",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = com.bobstream.app.ui.theme.TextPrimary
+                    )
+                }
+                TextButton(
+                    onClick = {
+                        historyManager.clearHistory()
+                        historyItems = emptyList()
+                    }
+                ) {
+                    Text("Clear All", color = Color(0xFFEF4444), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                historyItems.forEach { item ->
+                    HistoryItemCard(
+                        item = item,
+                        onClick = {
+                            val req = StreamRequest(
+                                title = item.title,
+                                mediaUrl = item.mediaUrl,
+                                headers = item.headers,
+                                drmScheme = try { DrmScheme.valueOf(item.drmScheme) } catch (e: Exception) { DrmScheme.NONE },
+                                drmKeyOrLicense = item.drmKeyOrLicense
+                            )
+                            onPlayStream(req)
+                        },
+                        onDelete = {
+                            historyManager.removeItem(item)
+                            historyItems = historyManager.getHistory()
+                        }
+                    )
                 }
             }
         }
     }
+}
 
-    @Composable
-    fun StreamInputField(
-        value: String,
-        onValueChange: (String) -> Unit,
-        label: String,
-        placeholder: String,
-        modifier: Modifier = Modifier
+@Composable
+fun HistoryItemCard(
+    item: StreamHistoryItem,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(CardBorder))
     ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = { Text(label, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 13.sp) },
-            placeholder = { Text(placeholder, color = com.bobstream.app.ui.theme.TextTertiary, fontSize = 13.sp) },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            colors = fieldColors(),
-            modifier = modifier.fillMaxWidth()
-        )
-    }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = com.bobstream.app.ui.theme.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = item.mediaUrl,
+                    fontSize = 12.sp,
+                    color = com.bobstream.app.ui.theme.TextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (item.drmScheme != "NONE") {
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        text = "DRM: ${item.drmScheme}",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = NeonCyan
+                    )
+                }
+            }
 
-    @Composable
-    private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = NeonCyan,
-        unfocusedBorderColor = CardBorder,
-        focusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
-        unfocusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
-        focusedTextColor = com.bobstream.app.ui.theme.TextPrimary,
-        unfocusedTextColor = com.bobstream.app.ui.theme.TextPrimary
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Default.DeleteOutline,
+                    contentDescription = "Remove",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun StreamInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 13.sp) },
+        placeholder = { Text(placeholder, color = com.bobstream.app.ui.theme.TextTertiary, fontSize = 13.sp) },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        colors = fieldColors(),
+        modifier = modifier.fillMaxWidth()
     )
+}
+
+@Composable
+private fun fieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = NeonCyan,
+    unfocusedBorderColor = CardBorder,
+    focusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
+    unfocusedContainerColor = com.bobstream.app.ui.theme.SurfaceLight,
+    focusedTextColor = com.bobstream.app.ui.theme.TextPrimary,
+    unfocusedTextColor = com.bobstream.app.ui.theme.TextPrimary
+)
