@@ -26,7 +26,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.drm.DrmSessionManager
+import androidx.media3.exoplayer.drm.DefaultDrmSessionManager
 import androidx.media3.exoplayer.drm.FrameworkMediaDrm
 import androidx.media3.exoplayer.drm.HttpMediaDrmCallback
 import androidx.media3.exoplayer.drm.LocalMediaDrmCallback
@@ -143,7 +143,7 @@ class PlayerActivity : ComponentActivity() {
                         try {
                             val w3cJsonBytes = StreamParser.buildClearKeyW3cJsonBytes(drmKeyOrLicense)
                             val callback = LocalMediaDrmCallback(w3cJsonBytes)
-                            val drmManager = DrmSessionManager.Builder()
+                            val drmManager = DefaultDrmSessionManager.Builder()
                                 .setUuidAndExoMediaDrmProvider(C.CLEARKEY_UUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
                                 .build(callback)
                             mediaSourceFactory.setDrmSessionManagerProvider { drmManager }
@@ -155,7 +155,7 @@ class PlayerActivity : ComponentActivity() {
                 DrmScheme.WIDEVINE -> {
                     if (!drmKeyOrLicense.isNullOrBlank()) {
                         val callback = HttpMediaDrmCallback(drmKeyOrLicense, httpDataSourceFactory)
-                        val drmManager = DrmSessionManager.Builder()
+                        val drmManager = DefaultDrmSessionManager.Builder()
                             .setUuidAndExoMediaDrmProvider(C.WIDEVINE_UUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
                             .build(callback)
                         mediaSourceFactory.setDrmSessionManagerProvider { drmManager }
@@ -214,14 +214,14 @@ class PlayerActivity : ComponentActivity() {
                 factory = { ctx ->
                     PlayerView(ctx).apply {
                         useController = false
-                        resizeMode = ResizeMode.FIT.modeValue
+                        setResizeMode(ResizeMode.FIT.modeValue)
                         player = exoPlayer
                         playerView = this
                     }
                 },
                 update = { view ->
                     view.player = exoPlayer
-                    view.resizeMode = resizeMode.modeValue
+                    view.setResizeMode(resizeMode.modeValue)
                 },
                 modifier = Modifier.fillMaxSize()
             )

@@ -7,6 +7,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.nio.charset.StandardCharsets
 
 class StreamParserTest {
 
@@ -42,5 +43,18 @@ class StreamParserTest {
 
         assertEquals(DrmScheme.WIDEVINE, req.drmScheme)
         assertEquals("https://proxy.widevine.com/proxy", req.drmKeyOrLicense)
+    }
+
+    @Test
+    fun testClearKeyW3cJsonSynthesis() {
+        val kidHex = "eb676abbcb345e96bbcf616630f1a3da"
+        val keyHex = "100b6c20940f779a4589152b57d2dacb"
+        val jsonBytes = StreamParser.buildClearKeyW3cJsonBytes("$kidHex:$keyHex")
+        val jsonStr = String(jsonBytes, StandardCharsets.UTF_8)
+
+        assertTrue(jsonStr.contains("\"keys\":[{\"kty\":\"oct\""))
+        assertTrue(jsonStr.contains("\"type\":\"temporary\""))
+        assertTrue(jsonStr.contains("\"kid\":"))
+        assertTrue(jsonStr.contains("\"k\":"))
     }
 }

@@ -1,10 +1,10 @@
 package com.bobstream.app.util
 
-import android.util.Base64
 import com.bobstream.app.data.model.DrmScheme
 import com.bobstream.app.data.model.StreamRequest
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 object StreamParser {
 
@@ -101,9 +101,10 @@ object StreamParser {
         val kidBytes = hexToBytes(kidHex)
         val keyBytes = hexToBytes(keyHex)
 
-        // URL-safe Base64 without padding
-        val kidB64 = Base64.encodeToString(kidBytes, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
-        val keyB64 = Base64.encodeToString(keyBytes, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
+        // URL-safe Base64 without padding (RFC 7515)
+        val encoder = Base64.getUrlEncoder().withoutPadding()
+        val kidB64 = encoder.encodeToString(kidBytes)
+        val keyB64 = encoder.encodeToString(keyBytes)
 
         val json = """{"keys":[{"kty":"oct","k":"$keyB64","kid":"$kidB64"}],"type":"temporary"}"""
         return json.toByteArray(StandardCharsets.UTF_8)
