@@ -3,8 +3,16 @@ name: Build BobStream APK
 on:
   push:
     branches: [ "main", "master" ]
+    paths-ignore:
+      - 'config.json'
+      - '**.md'
+      - '.gitignore'
   pull_request:
     branches: [ "main", "master" ]
+    paths-ignore:
+      - 'config.json'
+      - '**.md'
+      - '.gitignore'
   workflow_dispatch:
 
 jobs:
@@ -26,6 +34,10 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew || true
+
+    - name: Setup Release Keystore
+      run: |
+        keytool -genkeypair -v -keystore release.jks -alias bobstream -keyalg RSA -keysize 2048 -validity 10000 -storepass bobstream_signing_key_2026 -keypass bobstream_signing_key_2026 -dname "CN=BobStream, OU=Media, O=BobStream, L=San Francisco, ST=CA, C=US"
 
     - name: Run Unit Tests
       run: ./gradlew test --stacktrace

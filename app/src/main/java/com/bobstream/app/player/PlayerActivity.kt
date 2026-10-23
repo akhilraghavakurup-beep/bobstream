@@ -251,13 +251,17 @@ class PlayerActivity : ComponentActivity() {
                     PlayerView(ctx).apply {
                         useController = false
                         setResizeMode(ResizeMode.FIT.modeValue)
+                        keepScreenOn = true
                         player = exoPlayer
                         playerView = this
                     }
                 },
                 update = { view ->
-                    view.player = exoPlayer
+                    if (view.player != exoPlayer) {
+                        view.player = exoPlayer
+                    }
                     view.setResizeMode(resizeMode.modeValue)
+                    view.requestLayout()
                 },
                 modifier = Modifier.fillMaxSize()
             )

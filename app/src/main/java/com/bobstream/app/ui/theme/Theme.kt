@@ -6,12 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = NeonCyan,
-    onPrimary = Color.Black,
-    primaryContainer = DeepViolet,
+    primary = PrimaryIndigo,
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF1F2937),
     onPrimaryContainer = Color.White,
-    secondary = NeonPurple,
-    onSecondary = Color.White,
+    secondary = PrimaryTeal,
+    onSecondary = Color.Black,
+    secondaryContainer = Color(0xFF1E3A8A),
+    onSecondaryContainer = Color.White,
     background = DarkBackground,
     onBackground = TextPrimary,
     surface = SurfaceDark,

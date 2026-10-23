@@ -72,7 +72,10 @@ class TorrentEngine(private val context: Context) {
                     delay(250)
                 }
 
-                val streamUrl = "http://127.0.0.1:$port/stream.mp4"
+                val isMkv = file.name.endsWith(".mkv", ignoreCase = true)
+                val mimeType = if (isMkv) "video/x-matroska" else "video/mp4"
+
+                val streamUrl = "http://127.0.0.1:$port/${if (isMkv) "stream.mkv" else "stream.mp4"}"
                 _state.value = TorrentState.Ready(
                     streamUrl = streamUrl,
                     fileName = displayName,
@@ -112,8 +115,11 @@ class TorrentEngine(private val context: Context) {
 
     private class LocalStreamServer(port: Int, private val file: File) : NanoHTTPD("127.0.0.1", port) {
         override fun serve(session: IHTTPSession): Response {
+            val isMkv = session.uri.endsWith(".mkv", ignoreCase = true)
+            val mimeType = if (isMkv) "video/x-matroska" else "video/mp4"
+
             val range = session.headers["range"]
-            val fileLen = file.length()
+            val fileLen = if (file.length() > 0) file.length() else 1024L * 1024L * 1024L
 
             return if (range != null && range.startsWith("bytes=")) {
                 val parts = range.substring("bytes=".length).split("-")
@@ -121,12 +127,17 @@ class TorrentEngine(private val context: Context) {
                 val end = if (parts.size > 1 && parts[1].isNotEmpty()) parts[1].toLong() else fileLen - 1
                 val contentLength = end - start + 1
 
-                val fis = FileInputStream(file)
-                fis.skip(start)
+                val fis = if (file.exists() && file.length() > 0) {
+                    val stream = FileInputStream(file)
+                    stream.skip(start.coerceAtMost(file.length()))
+                    stream
+                } else {
+                    "".byteInputStream()
+                }
 
                 val res = newFixedLengthResponse(
                     Response.Status.PARTIAL_CONTENT,
-                    "video/mp4",
+                    mimeType,
                     fis,
                     contentLength
                 )
@@ -134,8 +145,8 @@ class TorrentEngine(private val context: Context) {
                 res.addHeader("Accept-Ranges", "bytes")
                 res
             } else {
-                val fis: InputStream = if (file.exists()) FileInputStream(file) else "".byteInputStream()
-                val res = newFixedLengthResponse(Response.Status.OK, "video/mp4", fis, fileLen)
+                val fis: InputStream = if (file.exists() && file.length() > 0) FileInputStream(file) else "".byteInputStream()
+                val res = newFixedLengthResponse(Response.Status.OK, mimeType, fis, fileLen)
                 res.addHeader("Accept-Ranges", "bytes")
                 res
             }
