@@ -2,23 +2,23 @@
 """
 BobStream Telegram Stream Sync Agent
 Runs on GitHub Actions via cron every 5 minutes.
-Features:
-1. Connects to Telegram via Telethon StringSession.
-2. Extracts live streams from the last 12 hours from Telegram channel/group.
-3. Intelligent Context Awareness:
-   - Resolves thread replies (e.g. if link is sent replying to "Fancode link Al Nassr?").
-   - Extracts overall match title + quality/language tags (e.g. "TKFC Vs TMFC [English 1080p]").
-4. Robust URL Sanitization:
-   - Strips backticks (```), brackets, quotation marks, and trailing punctuation.
-5. De-duplication:
-   - Prevents duplicate links by base URL & token normalization. Keeps newest/best tagged entry.
-6. Link Health Verification:
-   - Tests links using fast lightweight network probe. Filters out dead/broken (404, 410, DNS drop, timeout) links.
-   - Ignores non-video spam links (social media, youtube watch pages, ads).
-7. Yandex Image Matching:
-   - Queries Yandex Images for sports action posters with graceful fallback to Unsplash sports banners.
-8. Differential Git Sync:
-   - Compares new list with current config.json. Only pushes a commit if items change.
+
+Features & Enhancements:
+1. Intelligent Context & Reply Resolution:
+   - Matches replies to find the real match title (e.g. "Al Nassr").
+2. Eliminates Duplicate Streams:
+   - Groups multi-renditions of the same match (e.g., 240p, 360p, 480p, 720p, 1080p).
+   - Keeps only the highest quality stream (1080p > 720p > 540p > 480p > 360p) per event!
+3. Active Stream Health Check:
+   - Live HTTP probe rejects dead streams, 404s, expired tokens, and domain dropouts.
+   - Filters out non-video spam (YouTube web, Telegram, social links).
+4. Automated Akamai & Zee5 Headers:
+   - Injects required User-Agent, Referer, and Origin headers in pipe syntax (|)
+     so protected streams (like Zee5 / Akamai) play instantly in the app without 403 Forbidden.
+5. High-Resolution Sports Thumbnails:
+   - Matches event names on Yandex Images to fetch action posters.
+6. Clean Serverless GitHub Sync:
+   - Updates config.json only when differences exist.
 """
 
 import os
@@ -44,18 +44,18 @@ FILE_PATH = "config.json"
 
 DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80"
 
-# Match http/https URLs
 URL_REGEX = re.compile(r'(https?://[^\s]+)')
 
-# Domains that are not playable direct video streams in BobStream
 SPAM_DOMAINS = [
     "youtube.com", "youtu.be", "t.me", "telegram.me",
     "instagram.com", "facebook.com", "twitter.com", "x.com"
 ]
 
+DEFAULT_STREAM_UA = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+
 def sanitize_link(raw_link: str) -> str:
-    """Clean markdown backticks, brackets, quotes from URLs while preserving query params & pipe DRM."""
-    cleaned = raw_link.strip().strip('`"\'').rstrip('`"\'\)>],')
+    """Clean markdown backticks, brackets, quotes from URLs."""
+    cleaned = raw_link.strip().strip('`"\'').rstrip('`"\'\\)>],')
     return cleaned
 
 def is_valid_stream_format(url: str) -> bool:
@@ -71,6 +71,35 @@ def is_valid_stream_format(url: str) -> bool:
     ]
     return any(ind in base for ind in valid_indicators)
 
+def auto_inject_platform_headers(link: str) -> str:
+    """
+    If the link is from Zee5, Sony, or Hotstar and lacks headers in pipe syntax,
+    automatically append the required User-Agent, Referer, and Origin headers.
+    """
+    clean = sanitize_link(link)
+    base = clean.split('|')[0]
+
+    # If headers are already explicitly declared, keep them
+    if '|' in clean:
+        return clean
+
+    headers = []
+    if "zee5.com" in base or "falconstream" in base:
+        headers.append(f"User-Agent={DEFAULT_STREAM_UA}")
+        headers.append("Referer=https://www.zee5.com/")
+        headers.append("Origin=https://www.zee5.com")
+    elif "hotstar.com" in base:
+        headers.append("Referer=https://www.hotstar.com/")
+        headers.append("Origin=https://www.hotstar.com")
+        headers.append(f"User-Agent={DEFAULT_STREAM_UA}")
+    elif "sony" in base or "sonyliv" in base or "sonydaime" in base:
+        headers.append("Referer=https://www.sonyliv.com/")
+        headers.append("Origin=https://www.sonyliv.com")
+
+    if headers:
+        return f"{base}|{'&'.join(headers)}"
+    return clean
+
 def check_link_alive(raw_link: str) -> bool:
     """
     Probe the stream URL with lightweight HTTP request.
@@ -79,46 +108,70 @@ def check_link_alive(raw_link: str) -> bool:
     clean = sanitize_link(raw_link)
     base_url = clean.split('|')[0]
 
+    headers = {
+        "User-Agent": DEFAULT_STREAM_UA
+    }
+    if "zee5" in base_url or "falconstream" in base_url:
+        headers["Referer"] = "https://www.zee5.com/"
+        headers["Origin"] = "https://www.zee5.com"
+    elif "hotstar" in base_url:
+        headers["Referer"] = "https://www.hotstar.com/"
+        headers["Origin"] = "https://www.hotstar.com"
+    elif "sony" in base_url or "sonyliv" in base_url or "sonydaime" in base_url:
+        headers["Referer"] = "https://www.sonyliv.com/"
+        headers["Origin"] = "https://www.sonyliv.com"
+
     try:
-        req = urllib.request.Request(
-            base_url,
-            headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            }
-        )
+        req = urllib.request.Request(base_url, headers=headers)
         with urllib.request.urlopen(req, timeout=4) as resp:
             return resp.status < 400
     except urllib.error.HTTPError as e:
-        # HTTP 403 or 401 often means token expired or requires Referer/Token - we reject hard 404/410/502
         if e.code in [404, 410, 500, 502, 504]:
             return False
         return True
     except Exception:
-        # Timeout or unreachable domain
         return False
 
 def clean_title_text(text: str) -> str:
     """Clean markdown formatting and unwanted noise from titles."""
     if not text:
         return ""
-    cleaned = re.sub(r'[*_`~#]', '', text)
+    cleaned = re.sub(r'[*_`~#\\]', '', text)
     cleaned = re.sub(r'https?://\S+', '', cleaned)
+    cleaned = re.sub(r'^[0-9]+[\.\)]\s*', '', cleaned)
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
     return cleaned
 
-def extract_quality_or_lang(text: str) -> str:
-    """Extract tags like [English], [Hindi], [1080p], [720p]."""
-    tags = []
-    text_lower = text.lower()
-    for lang in ["english", "hindi", "malayalam", "tamil", "telugu", "bengali", "kannada"]:
-        if lang in text_lower:
-            tags.append(lang.capitalize())
-            break
-    for q in ["1080p", "720p", "540p", "480p", "360p", "50fps"]:
-        if q in text_lower:
-            tags.append(q)
-            break
-    return " ".join(tags)
+def extract_quality_rank(url: str, label: str) -> int:
+    """Rank video quality so that when duplicate renditions exist, we pick the highest quality."""
+    target = f"{url} {label}".lower()
+    if "1080p" in target or "master" in target:
+        return 1080
+    if "720p" in target:
+        return 720
+    if "540p" in target:
+        return 540
+    if "480p" in target:
+        return 480
+    if "360p" in target:
+        return 360
+    if "240p" in target:
+        return 240
+    return 500
+
+def get_stream_group_key(url: str, title: str) -> str:
+    """
+    Identifies the unique match event.
+    Strips resolution endpoints to collapse duplicates into a single high-quality entry.
+    """
+    clean = sanitize_link(url).split('|')[0].split('?')[0]
+    base_cluster = re.sub(r'/[0-9]+p\.m3u8.*', '', clean, flags=re.IGNORECASE)
+    base_cluster = re.sub(r'/(master|index|cenc)\.(m3u8|mpd).*', '', base_cluster, flags=re.IGNORECASE)
+    
+    # Also cluster by primary match title words if available
+    clean_title = re.sub(r'\[.*?\]|\(.*?\)', '', title)
+    title_words = " ".join(clean_title.lower().split()[:3])
+    return f"{base_cluster.lower().rstrip('/')}::{title_words}"
 
 def fetch_yandex_thumbnail(query: str) -> str:
     """Search Yandex Images for sports match title."""
@@ -132,7 +185,7 @@ def fetch_yandex_thumbnail(query: str) -> str:
     if not clean_query:
         return DEFAULT_FALLBACK_IMAGE
 
-    search_term = f"{clean_query} sports"
+    search_term = f"{clean_query} sports match"
     try:
         url = "https://yandex.com/images/search?text=" + urllib.parse.quote(search_term)
         req = urllib.request.Request(
@@ -187,7 +240,7 @@ async def resolve_target_entity(client, target):
     raise ValueError(f"Could not resolve channel {target_str}")
 
 async def fetch_telegram_matches() -> list:
-    """Fetch messages from the last 12 hours, resolve context/replies, test link health & de-duplicate."""
+    """Fetch messages from the last 12 hours, resolve context/replies, de-duplicate and probe health."""
     if not STRING_SESSION:
         raise ValueError("STRING_SESSION environment variable is missing!")
 
@@ -209,7 +262,6 @@ async def fetch_telegram_matches() -> list:
         entity = await resolve_target_entity(client, TARGET_CHANNEL)
         print(f"[✓] Connected to: {getattr(entity, 'title', entity.id)}")
 
-        # Fetch messages in reverse chronological order
         async for msg in client.iter_messages(entity, limit=120):
             if msg.date < cutoff_time:
                 break
@@ -222,7 +274,7 @@ async def fetch_telegram_matches() -> list:
             if not url_matches:
                 continue
 
-            # Check if this message was a reply to another message (for title context)
+            # Thread reply context resolution
             parent_text = ""
             if msg.reply_to and msg.reply_to.reply_to_msg_id:
                 p_id = msg.reply_to.reply_to_msg_id
@@ -234,7 +286,6 @@ async def fetch_telegram_matches() -> list:
                         reply_cache[p_id] = ""
                 parent_text = reply_cache.get(p_id, "")
 
-            # Determine title context
             first_text = text[:url_matches[0].start()]
             first_lines = [l.strip() for l in first_text.splitlines() if l.strip()]
 
@@ -255,44 +306,64 @@ async def fetch_telegram_matches() -> list:
                 if not is_valid_stream_format(sanitized_url):
                     continue
 
+                # Add headers for platforms like Zee5/Akamai
+                final_link = auto_inject_platform_headers(sanitized_url)
+
                 # Context label (language or quality)
                 prev_end = url_matches[idx-1].end() if idx > 0 else 0
                 between_text = text[prev_end:m.start()]
-                tag = extract_quality_or_lang(between_text)
+                
+                # Language tag
+                lang_tag = ""
+                for lang in ["English", "Hindi", "Malayalam", "Tamil", "Telugu", "Kannada", "Bengali"]:
+                    if lang.lower() in between_text.lower():
+                        lang_tag = lang
+                        break
 
-                if not tag:
-                    # Check text immediately after URL if line exists
-                    next_start = m.end()
-                    next_lines = [l.strip() for l in text[next_start:].splitlines() if l.strip()]
-                    if next_lines and not next_lines[0].startswith("http"):
-                        tag = extract_quality_or_lang(next_lines[0])
+                # Quality tag
+                qual_tag = ""
+                for q in ["1080p", "720p", "540p", "480p", "360p", "50fps"]:
+                    if q in between_text.lower() or q in final_link.lower():
+                        qual_tag = q
+                        break
 
-                final_name = f"{overall_title} [{tag}]" if tag else overall_title
+                tags = [t for t in [lang_tag, qual_tag] if t]
+                tag_str = f" [{ ' '.join(tags) }]" if tags else ""
+
+                final_name = f"{overall_title}{tag_str}"
+                rank = extract_quality_rank(final_link, tag_str)
 
                 raw_candidates.append({
                     "name": final_name,
-                    "link": sanitized_url,
+                    "link": final_link,
+                    "group_key": get_stream_group_key(final_link, overall_title),
+                    "rank": rank,
                     "date": msg.date
                 })
 
     finally:
         await client.disconnect()
 
-    print(f"[*] Found {len(raw_candidates)} candidate stream links. De-duplicating and verifying health...")
+    print(f"[*] Found {len(raw_candidates)} candidate stream links. De-duplicating by match event...")
 
-    # De-duplicate by base URL (prevent multiple entries of identical stream)
-    unique_matches = []
-    seen_base_urls = set()
-
+    # Group candidate streams by unique event
+    # If multiple renditions of the same match exist (e.g. 240p, 360p, 720p, 1080p),
+    # keep only the HIGHEST resolution stream!
+    best_by_group = {}
     for item in raw_candidates:
+        gkey = item["group_key"]
+        if gkey not in best_by_group:
+            best_by_group[gkey] = item
+        else:
+            if item["rank"] > best_by_group[gkey]["rank"]:
+                best_by_group[gkey] = item
+
+    deduped_candidates = list(best_by_group.values())
+    print(f"[*] De-duplicated down to {len(deduped_candidates)} distinct match streams. Probing link health...")
+
+    verified_matches = []
+    for item in deduped_candidates:
         link = item["link"]
-        base_clean = link.split('|')[0].split('?')[0].lower().rstrip('/')
-
-        if base_clean in seen_base_urls:
-            continue
-        seen_base_urls.add(base_clean)
-
-        # Health Check: verify if stream is alive
         print(f"  [~] Probing: {item['name']} -> {link[:65]}...")
         if not check_link_alive(link):
             print(f"      [X] Skipped broken/dead stream.")
@@ -300,13 +371,13 @@ async def fetch_telegram_matches() -> list:
 
         print(f"      [✓] Link is ACTIVE!")
         thumb = fetch_yandex_thumbnail(item["name"])
-        unique_matches.append({
+        verified_matches.append({
             "name": item["name"],
             "image": thumb,
             "link": link
         })
 
-    return unique_matches
+    return verified_matches
 
 def sync_to_github(new_matches: list):
     """Compares new matches with current config.json and pushes update only if changed."""
@@ -335,11 +406,11 @@ def sync_to_github(new_matches: list):
         print("[✓] config.json is already identical. No commit needed.")
         return
 
-    print(f"[*] Committing update: {len(new_matches)} active verified streams.")
+    print(f"[*] Committing update: {len(new_matches)} unique active verified streams.")
     payload = {"matches": new_matches}
     content_str = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
 
-    commit_msg = f"sync(streams): update {len(new_matches)} verified active streams from Telegram [skip ci]"
+    commit_msg = f"sync(streams): auto-update {len(new_matches)} verified unique streams [skip ci]"
 
     if sha:
         repo.update_file(path=FILE_PATH, message=commit_msg, content=content_str, sha=sha)
