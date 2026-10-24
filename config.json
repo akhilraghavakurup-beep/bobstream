@@ -1,9 +1,14 @@
 {
   "matches": [
     {
-      "name": "IND VS NZ",
-      "image": "https://i.ytimg.com/vi/YOoG--UBmc0/maxresdefault.jpg",
-      "link": "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/dev1hjwzh9/out/v1/a5f0ee7ad7b24906b14f43bebbbe4678/cenc.mpd"
+      "name": "India vs New Zealand [English]",
+      "image": "https://icdn.guerillacricket.com/wp-content/uploads/2025/03/GlDI-EMWcAAPDPh.jpg",
+      "link": "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/di53wexuc7/out/v1/40b0a31c1c5b4f4aa41286cb1313cf87/cenc.mpd?|drmScheme=clearkey&drmLicense=01501c3401dabab0e68c1d58b2ed5bde:4c1167220c5d1358d630245281ceba58"
+    },
+    {
+      "name": "PRIME ENGLISH [English]",
+      "image": "https://es-static.z-dn.net/files/d65/4596852e7a0895c9f918c1f0f89d2010.jpg",
+      "link": "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/di53wexuc7/out/v1/40b0a31c1c5b4f4aa41286cb1313cf87/cenc.mpd?|drmScheme=clearkey&drmLicense=01501c3401dabab0e68c1d58b2ed5bde:4c1167220c5d1358d630245281ceba58"
     },
     {
       "name": "India vs Newzealand [English 50fps]",
@@ -16,8 +21,18 @@
       "link": "https://dai.google.com/ssai/event/Vqhl5bQURxa3_aLKeTXABA/master.m3u8"
     },
     {
+      "name": "India vs New Zealand [Hindi]",
+      "image": "https://icdn.guerillacricket.com/wp-content/uploads/2025/03/GlDI-EMWcAAPDPh.jpg",
+      "link": "https://liveakmt-p-md.slivcdn.com/hls/live/2119921/cricodi_2410/HIN/master.m3u8?hdnea=exp=1792864244~acl=/*~id=69028954704251494132013505570173~hmac=27084bae2c88d9de9bbb6c6c1d39492da4db0b91aa1d9b31a85d0d37da4a57c9"
+    },
+    {
+      "name": "IND VS NZ",
+      "image": "https://i.ytimg.com/vi/32iHE93cZ2g/maxresdefault.jpg",
+      "link": "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/dev1hjwzh9/out/v1/a5f0ee7ad7b24906b14f43bebbbe4678/cenc.mpd"
+    },
+    {
       "name": "English [English]",
-      "image": "https://i.ytimg.com/vi/0P8zp3YNab0/maxresdefault.jpg",
+      "image": "https://es-static.z-dn.net/files/d65/4596852e7a0895c9f918c1f0f89d2010.jpg",
       "link": "https://liveakdai.slivcdn.com/hls/live/20000094/cricodi_2410/ENG/std_Irh-800300010.m3u8?"
     },
     {
