@@ -1,11 +1,6 @@
 {
   "matches": [
     {
-      "name": "GT20 CUP",
-      "image": "https://www.sakshipost.com/sites/default/files/article_images/2023/07/31/WhatsApp_Image_2023-07-31_at_08.46.52-1690778401.jpeg",
-      "link": "https://falconstream.zee5.com/cmaf/live/2109037/NCL-M00-241026_ENG/master.m3u8?hdntl=exp=1792895229~acl=%2f*~id=0-1-6z51099415_b35de284-76fd-491c-983b-8e36f6106fd4~data=hdntl,2109037,NCL-M00-241026,ENG,a915badcfe8f0f3b7f42c9e47f7cf0dbe46baf1ce6a7682a51f0576826a3e18f~hmac=36fee6d9eac2bd2ff7e57ffad2b08778fa8e885761b26076d94382fb70a04686|User-Agent=Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36&Referer=https://www.zee5.com/&Origin=https://www.zee5.com"
-    },
-    {
       "name": "India a vs Newzealand A",
       "image": "https://i.tribune.com.pk/media/images/india-new-zealand1741357932-0/india-new-zealand1741357932-0.jpg",
       "link": "https://abn7ylpaaaaaaaame77ehqq2geew7.ta.bia-cf.live.pv-cdn.net/bom-nitro/live/clients/dash/enc/u4og1rywmm/out/v1/809b1c642b0e456fbebbcdc566e93e26/cenc.mpd|drmScheme=clearkey&drmLicense=1ae9f19dac275f64e9a3d7f35166e5ba:29197b1e858a85b94a3694e69b3ebbf7"
@@ -24,11 +19,6 @@
       "name": "Live Stream",
       "image": "https://static1.bigstockphoto.com/4/9/1/large1500/194654833.jpg",
       "link": "https://sonydaime.akamaized.net/hls/live/2120300/criclive2310/ENG/std_lrh-800300010.m3u8?hdnea=exp=1792835046~acl=/*~id=11564014897681091313403330625592~hmac=4e9c01f59ed19d16cfbf6fb5503645f2ff83d09ad59939695a4373a25cc57a35|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
-    },
-    {
-      "name": "Kaun Banega crorepati",
-      "image": "https://images.news18.com/ibnlive/uploads/2021/08/studio_project-6-162868414816x9.jpeg",
-      "link": "https://a100live-pv-ta-amazon.akamaized.net/bom-nitro/live/clients/dash/enc/nmd4mhjfix/out/v1/887099df693b471aa576d890c35b171b/cenc.mpd"
     }
   ]
 }
