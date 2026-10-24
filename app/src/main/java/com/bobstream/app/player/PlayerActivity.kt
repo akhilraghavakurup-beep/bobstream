@@ -39,9 +39,6 @@ import com.bobstream.app.ui.theme.BobStreamTheme
 import com.bobstream.app.ui.theme.NeonCyan
 import com.bobstream.app.util.StreamParser
 
-import android.content.pm.ActivityInfo
-import androidx.media3.exoplayer.DefaultLoadControl
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import android.app.PictureInPictureParams
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
@@ -50,6 +47,8 @@ import android.content.res.Configuration
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -466,7 +465,7 @@ class PlayerActivity : ComponentActivity() {
                                     startActivity(Intent(Settings.ACTION_CAST_SETTINGS))
                                 } catch (_: Exception) {
                                     try {
-                                        startActivity(Intent(Settings.ACTION_WIFI_DISPLAY_SETTINGS))
+                                        startActivity(Intent("android.settings.WIFI_DISPLAY_SETTINGS"))
                                     } catch (e: Exception) {
                                         errorMessage = "Could not open Cast settings: ${e.message}"
                                     }

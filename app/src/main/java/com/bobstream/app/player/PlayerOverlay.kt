@@ -29,6 +29,7 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import android.content.Context
 import android.os.BatteryManager
 import androidx.compose.ui.platform.LocalContext
+import com.bobstream.app.ui.theme.NeonCyan
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

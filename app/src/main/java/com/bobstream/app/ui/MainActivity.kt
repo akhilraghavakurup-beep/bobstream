@@ -350,11 +350,12 @@ fun MainScreen(
                 }
             },
             confirmButton = {
-                if (downloadedApkFile != null) {
+                val apk = downloadedApkFile
+                if (apk != null) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
                             onClick = {
-                                val res = updateManager.saveApkToDownloads(downloadedApkFile!)
+                                val res = updateManager.saveApkToDownloads(apk)
                                 res.onSuccess { f ->
                                     Toast.makeText(context, "Saved to ${f.name} in Downloads!", Toast.LENGTH_LONG).show()
                                 }.onFailure { e ->
@@ -367,7 +368,7 @@ fun MainScreen(
                         }
                         Button(
                             onClick = {
-                                updateManager.promptInstall(downloadedApkFile!)
+                                updateManager.promptInstall(apk)
                                 showAboutDialog = false
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
