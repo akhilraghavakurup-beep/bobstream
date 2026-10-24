@@ -1,79 +1,14 @@
 {
   "matches": [
     {
-      "name": "IND vs NZ 2nd T20 [English]",
+      "name": "EPL",
       "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/di53wexuc7/out/v1/40b0a31c1c5b4f4aa41286cb1313cf87/cenc.mpd|drmScheme=clearkey&drmLicense=01501c3401dabab0e68c1d58b2ed5bde:4c1167220c5d1358d630245281ceba58"
+      "link": "https://live09p.hotstar.com/mp2/inallow-epl-2026-27-1540083131/cbef2ec316ac4fa694b974d823bba526/index.mpd|Referer=https://www.hotstar.com/&Origin=https://www.hotstar.com&User-Agent=Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
     },
     {
-      "name": "IND vs NZ 2nd T20 [Hindi]",
+      "name": "╔══════════════════════════╗",
       "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/fra-nitro/live/clients/dash/enc/mmvlg151u6/out/v1/ab9d1f193c094ee8a9305f983a716f35/cenc.mpd|drmScheme=clearkey&drmLicense=18e6af4a0daf2a1fdfbdc5b541520c88:ca0b64b84edb4f20eb1e135ff03db4f7"
-    },
-    {
-      "name": "IND vs NZ 2nd T20 [Tamil]",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://live-pv-ta.amazon.fastly-edge.com/bom-nitro/live/clients/dash/enc/zhaaefajop/out/v1/e5226708737141b2ac370864916708b9/cenc.mpd|drmScheme=clearkey&drmLicense=fb22851800fb00e16fb1a1dd8ca3997c:0cd9eec4aa66c9b9865dbd7ea5788866"
-    },
-    {
-      "name": "IND vs NZ 2nd T20 [Telugu]",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://live-pv-ta.amazon.fastly-edge.com/bom-nitro/live/clients/dash/enc/9n0mgnesec/out/v1/48f6a68ca3a34f2bba34df81e19764d1/cenc.mpd|drmScheme=clearkey&drmLicense=4e5ac7875b78110f6dec912429209dfa:bbfe716053be1f7d3caa4e4952277a11"
-    },
-    {
-      "name": "IND vs NZ 2nd T20 [Kannada]",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://live-pv-ta.amazon.fastly-edge.com/bom-nitro/live/clients/dash/enc/2ve4p3frvj/out/v1/0a3bdbce62524db4a16a20bf9892b680/cenc.mpd|drmScheme=clearkey&drmLicense=0008b93634dcf5be9e839816086afdf0:e09d1878e6e7126bd9c2c432fdb11553"
-    },
-    {
-      "name": "IND vs NZ 2nd T20",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/pvgujcj50n/out/v1/4d9bef3b24a049eaaff1a5cdca1d80da/cenc.mpd|drmScheme=clearkey&drmLicense=fc873f26b2acaaf242b2fba718c325f3:4d42182acd9c6656d648ab20d67eacc8"
-    },
-    {
-      "name": "INDIA vs NEW ZEALAND LIVE",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://images.slivcdn.com/videoasset_images/manage_file/1000027088/1792739746933829_NZvsIND26_2nd_t20i_landscape_thumb.jpg|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
-    },
-    {
-      "name": "4e5ac7875b78110f6dec912429209dfa:bbfe716053be1f7d3caa4e4952277a11",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://live-pv-ta.amazon.fastly-edge.com/bom-nitro/live/clients/dash/enc/9n0mgnesec/out/v1/48f6a68ca3a34f2bba34df81e19764d1/cenc.mpd|drmScheme=clearkey&drmLicense=4e5ac7875b78110f6dec912429209dfa:bbfe716053be1f7d3caa4e4952277a11"
-    },
-    {
-      "name": "0008b93634dcf5be9e839816086afdf0:e09d1878e6e7126bd9c2c432fdb11553",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://live-pv-ta.amazon.fastly-edge.com/bom-nitro/live/clients/dash/enc/2ve4p3frvj/out/v1/0a3bdbce62524db4a16a20bf9892b680/cenc.mpd|drmScheme=clearkey&drmLicense=0008b93634dcf5be9e839816086afdf0:e09d1878e6e7126bd9c2c432fdb11553"
-    },
-    {
-      "name": "fb22851800fb00e16fb1a1dd8ca3997c:0cd9eec4aa66c9b9865dbd7ea5788866",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://live-pv-ta.amazon.fastly-edge.com/bom-nitro/live/clients/dash/enc/zhaaefajop/out/v1/e5226708737141b2ac370864916708b9/cenc.mpd|drmScheme=clearkey&drmLicense=fb22851800fb00e16fb1a1dd8ca3997c:0cd9eec4aa66c9b9865dbd7ea5788866"
-    },
-    {
-      "name": "Willow",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/ntomodyqm3/out/v1/cd61ecc8b6694006a1173974fcfa4e9e/cenc.mpd|drmScheme=clearkey&drmLicense=8c80205dcd2490ef9386a322c46aef12:0dba6b2d52b76e5dff92fac577e7ac8d"
-    },
-    {
-      "name": "isLive: true,",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://origin-staticv2.sonyliv.com/videoasset_images/manage_file/1000027088/1792739746933829_NZvsIND26_2nd_t20i_landscape_thumb.jpg|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
-    },
-    {
-      "name": "PRIME ENGLISH [English]",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/di53wexuc7/out/v1/40b0a31c1c5b4f4aa41286cb1313cf87/cenc.mpd|drmScheme=clearkey&drmLicense=01501c3401dabab0e68c1d58b2ed5bde:4c1167220c5d1358d630245281ceba58"
-    },
-    {
-      "name": "PRIME ENGLISH [Hindi]",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/fra-nitro/live/clients/dash/enc/mmvlg151u6/out/v1/ab9d1f193c094ee8a9305f983a716f35/cenc.mpd|drmScheme=clearkey&drmLicense=18e6af4a0daf2a1fdfbdc5b541520c88:ca0b64b84edb4f20eb1e135ff03db4f7"
-    },
-    {
-      "name": "India vs New Zealand [English]",
-      "image": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80",
-      "link": "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/di53wexuc7/out/v1/40b0a31c1c5b4f4aa41286cb1313cf87/cenc.mpd|drmScheme=clearkey&drmLicense=01501c3401dabab0e68c1d58b2ed5bde:4c1167220c5d1358d630245281ceba58"
+      "link": "https://jiotvpllive.cdn.jio.com/bpk-tv/Star_Sports_Select_HD_1_BTS/WDVLive/index.mpd?__hdnea__=st=1792835296~exp=1792856896~acl=/bpk-tv/Star_Sports_Select_HD_1_BTS/WDVLive/*~hmac=ecaddd60a154fe68da8370706b3563a7c068dd67f4af3248c8ad8bfe615e1f90|Cookie=__hdnea__=st=1792835296~exp=1792856896~acl=/bpk-tv/Star_Sports_Select_HD_1_BTS/WDVLive/*~hmac=ecaddd60a154fe68da8370706b3563a7c068dd67f4af3248c8ad8bfe615e1f90&User-Agent=Virat&Referer=https://www.jiotv.com/&Origin=https://www.jiotv.com/&drmScheme=clearkey&drmLicense=8fc8499852ea5182b2a9307bd921cea1:c0ff2fbd59e26d6633f98af470c4d7b6,cc04426ac28359a7b620934ddbbecb7c:0074c460557b1f21a60fa0aada550e3a"
     }
   ]
 }
