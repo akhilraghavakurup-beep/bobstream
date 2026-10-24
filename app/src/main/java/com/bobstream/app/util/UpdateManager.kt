@@ -27,8 +27,8 @@ class UpdateManager(private val context: Context) {
         .build()
 
     companion object {
-        const val CURRENT_VERSION_NAME = "1.3.3"
-        const val CURRENT_VERSION_CODE = 7
+        const val CURRENT_VERSION_NAME = "1.4.0"
+        const val CURRENT_VERSION_CODE = 8
         private const val GITHUB_REPO = "akhilraghavakurup-beep/bobstream"
     }
 
@@ -120,6 +120,18 @@ class UpdateManager(private val context: Context) {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
         context.startActivity(intent)
+    }
+
+    fun saveApkToDownloads(apkFile: File, versionName: String = CURRENT_VERSION_NAME): Result<File> {
+        return try {
+            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+            downloadsDir.mkdirs()
+            val destFile = File(downloadsDir, "BobStream-v$versionName.apk")
+            apkFile.copyTo(destFile, overwrite = true)
+            Result.success(destFile)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     private fun isNewer(latest: String, current: String): Boolean {

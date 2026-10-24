@@ -35,8 +35,11 @@ import com.bobstream.app.ui.theme.SurfaceDark
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import com.bobstream.app.ui.theme.CardBorder
+import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import java.io.File
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.ui.platform.LocalContext
 import com.bobstream.app.util.StreamParser
@@ -99,6 +102,10 @@ fun MainScreen(
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var isDownloadingUpdate by remember { mutableStateOf(false) }
     var updateProgress by remember { mutableFloatStateOf(0f) }
+    var downloadedApkFile by remember { mutableStateOf<File?>(null) }
+
+    val prefs = remember { context.getSharedPreferences("bobstream_prefs", Context.MODE_PRIVATE) }
+    var defaultLandscape by remember { mutableStateOf(prefs.getBoolean("default_landscape", true)) }
 
     val config by configRepository.configState.collectAsState()
     val isRefreshing by configRepository.isRefreshing.collectAsState()
@@ -221,48 +228,155 @@ fun MainScreen(
         }
     }
 
-    // About & Inbuilt OTA Dialog
+    // About & Settings & Inbuilt OTA Dialog
     if (showAboutDialog) {
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
             containerColor = Color.White,
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(20.dp),
             title = {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Default.Info, contentDescription = null, tint = NeonCyan)
-                    Text("About BobStream", color = com.bobstream.app.ui.theme.TextPrimary, fontWeight = FontWeight.Bold)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    BobStreamLogo(iconSize = 36.dp, showText = false)
+                    Column {
+                        Text(
+                            "BobStream",
+                            color = com.bobstream.app.ui.theme.TextPrimary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "Developed by Kurup",
+                            color = NeonCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Version: v${UpdateManager.CURRENT_VERSION_NAME} (Build ${UpdateManager.CURRENT_VERSION_CODE})", color = com.bobstream.app.ui.theme.TextPrimary, fontWeight = FontWeight.SemiBold)
-                    Text("Engine: AndroidX Media3 1.4.1 + Sequential P2P Engine", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp)
-                    Text("Features: HLS/DASH, ClearKey/Widevine DRM, Sequential Magnet Streaming, Inbuilt OTA Updates.", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp)
+                val scrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier.verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        "Version: v${UpdateManager.CURRENT_VERSION_NAME} (Build ${UpdateManager.CURRENT_VERSION_CODE})",
+                        color = com.bobstream.app.ui.theme.TextPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
 
-                    Spacer(Modifier.height(6.dp))
+                    HorizontalDivider(color = Color(0xFFE5E7EB), thickness = 0.8.dp)
+
+                    // Preferences: Start in Landscape Mode
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Start in Landscape", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = com.bobstream.app.ui.theme.TextPrimary)
+                            Text("Auto-rotate to horizontal on play", fontSize = 11.sp, color = com.bobstream.app.ui.theme.TextSecondary)
+                        }
+                        Switch(
+                            checked = defaultLandscape,
+                            onCheckedChange = { checked ->
+                                defaultLandscape = checked
+                                prefs.edit().putBoolean("default_landscape", checked).apply()
+                            },
+                            colors = SwitchDefaults.colors(checkedThumbColor = NeonCyan)
+                        )
+                    }
+
+                    // Preferences: Force Refresh & Clear Cache
+                    OutlinedButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                configRepository.refresh()
+                                Toast.makeText(context, "Stream cache refreshed!", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Clear Cache & Force Refresh", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = com.bobstream.app.ui.theme.TextPrimary)
+                    }
+
+                    HorizontalDivider(color = Color(0xFFE5E7EB), thickness = 0.8.dp)
+
+                    // Changelog Section
+                    Text("What's New in v1.4.0:", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = com.bobstream.app.ui.theme.TextPrimary)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF3F4F6))
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text("• Status bar auto-hidden only in landscape fullscreen", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• Auto-pause video on screen off (power button) & phone calls", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• Vertical fluid-fill gesture sliders for volume & brightness", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• In-player live clock and battery percentage HUD", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• Decrypted screen casting to TVs (Wireless Display / Miracast)", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• Fixed asterisk (***) stream corruption in Telegram sync", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• Auto-stitching of standalone ClearKey DRM keys", fontSize = 11.sp, color = Color(0xFF374151))
+                        Text("• Option to save downloaded APK directly to Downloads folder", fontSize = 11.sp, color = Color(0xFF374151))
+                    }
 
                     if (isDownloadingUpdate) {
-                        Text("Downloading update: ${(updateProgress * 100).toInt()}%", color = NeonCyan, fontSize = 13.sp)
+                        Text("Downloading update: ${(updateProgress * 100).toInt()}%", color = NeonCyan, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         LinearProgressIndicator(
                             progress = { updateProgress },
                             color = NeonCyan,
-                            trackColor = CardBorder,
+                            trackColor = Color(0xFFE5E7EB),
                             modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp))
                         )
+                    } else if (downloadedApkFile != null) {
+                        Text("Update downloaded successfully!", color = Color(0xFF16A34A), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     } else if (updateInfo != null) {
                         if (updateInfo!!.hasUpdate) {
                             Text("New version v${updateInfo!!.latestVersion} is available!", color = Color(0xFF16A34A), fontWeight = FontWeight.Bold)
                             updateInfo!!.releaseNotes?.let {
-                                Text(it, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp, maxLines = 3)
+                                Text(it, color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 11.sp, maxLines = 4)
                             }
                         } else {
-                            Text("You are on the latest version.", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 13.sp)
+                            Text("You are on the latest version.", color = com.bobstream.app.ui.theme.TextSecondary, fontSize = 12.sp)
                         }
                     }
                 }
             },
             confirmButton = {
-                if (updateInfo?.hasUpdate == true && updateInfo?.downloadUrl != null && !isDownloadingUpdate) {
+                if (downloadedApkFile != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                val res = updateManager.saveApkToDownloads(downloadedApkFile!)
+                                res.onSuccess { f ->
+                                    Toast.makeText(context, "Saved to ${f.name} in Downloads!", Toast.LENGTH_LONG).show()
+                                }.onFailure { e ->
+                                    Toast.makeText(context, "Failed to save: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Save to Downloads", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Button(
+                            onClick = {
+                                updateManager.promptInstall(downloadedApkFile!)
+                                showAboutDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Install Now", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                } else if (updateInfo?.hasUpdate == true && updateInfo?.downloadUrl != null && !isDownloadingUpdate) {
                     Button(
                         onClick = {
                             isDownloadingUpdate = true
@@ -272,14 +386,15 @@ fun MainScreen(
                                 }
                                 isDownloadingUpdate = false
                                 result.onSuccess { apkFile ->
+                                    downloadedApkFile = apkFile
                                     updateManager.promptInstall(apkFile)
-                                    showAboutDialog = false
                                 }.onFailure { err ->
                                     Toast.makeText(context, "Download failed: ${err.message}", Toast.LENGTH_LONG).show()
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = NeonCyan)
+                        colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
+                        shape = RoundedCornerShape(10.dp)
                     ) {
                         Text("Download & Install", color = Color.White, fontWeight = FontWeight.Bold)
                     }
@@ -293,7 +408,8 @@ fun MainScreen(
                             }
                         },
                         enabled = !isCheckingUpdate,
-                        colors = ButtonDefaults.buttonColors(containerColor = NeonCyan)
+                        colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
+                        shape = RoundedCornerShape(10.dp)
                     ) {
                         if (isCheckingUpdate) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)

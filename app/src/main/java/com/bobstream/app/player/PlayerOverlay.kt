@@ -26,7 +26,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.ui.AspectRatioFrameLayout
-import com.bobstream.app.ui.theme.NeonCyan
+import android.content.Context
+import android.os.BatteryManager
+import androidx.compose.ui.platform.LocalContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.delay
 
 enum class ResizeMode(val label: String, val modeValue: Int) {
@@ -64,8 +69,22 @@ fun PlayerOverlay(
 
     var controlsVisible by remember { mutableStateOf(true) }
     var isTouchLocked by remember { mutableStateOf(false) }
-    var showSpeedDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var currentTimeStr by remember { mutableStateOf("") }
+    var batteryPercent by remember { mutableIntStateOf(-1) }
 
+    LaunchedEffect(controlsVisible) {
+        if (controlsVisible) {
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            currentTimeStr = sdf.format(Date())
+            try {
+                val bm = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+                batteryPercent = bm?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+            } catch (_: Exception) {}
+        }
+    }
+
+    var showSpeedDialog by remember { mutableStateOf(false) }
     var brightnessFeedback by remember { mutableStateOf<Float?>(null) }
     var volumeFeedback by remember { mutableStateOf<Float?>(null) }
     var doubleTapSeekSide by remember { mutableStateOf<String?>(null) }
@@ -231,15 +250,15 @@ fun PlayerOverlay(
             }
         }
 
-        // Gesture Feedback HUDs with smooth enter/exit animations
+        // Vertical Gesture Feedback HUDs with smooth enter/exit animations
         AnimatedVisibility(
             visible = brightnessFeedback != null,
-            enter = fadeIn() + slideInHorizontally { -it / 2 },
-            exit = fadeOut() + slideOutHorizontally { -it / 2 },
-            modifier = Modifier.align(Alignment.CenterStart).padding(start = 28.dp)
+            enter = fadeIn() + slideInHorizontally { -it },
+            exit = fadeOut() + slideOutHorizontally { -it },
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 24.dp)
         ) {
             brightnessFeedback?.let { level ->
-                GestureIndicator(
+                VerticalGestureSlider(
                     icon = Icons.Default.BrightnessMedium,
                     label = "Brightness",
                     progress = level
@@ -249,12 +268,12 @@ fun PlayerOverlay(
 
         AnimatedVisibility(
             visible = volumeFeedback != null,
-            enter = fadeIn() + slideInHorizontally { it / 2 },
-            exit = fadeOut() + slideOutHorizontally { it / 2 },
-            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 28.dp)
+            enter = fadeIn() + slideInHorizontally { it },
+            exit = fadeOut() + slideOutHorizontally { it },
+            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 24.dp)
         ) {
             volumeFeedback?.let { level ->
-                GestureIndicator(
+                VerticalGestureSlider(
                     icon = if (level <= 0.01f) Icons.Default.VolumeMute else Icons.Default.VolumeUp,
                     label = "Volume",
                     progress = level
@@ -312,6 +331,29 @@ fun PlayerOverlay(
                         maxLines = 1,
                         modifier = Modifier.weight(1f).padding(horizontal = 6.dp)
                     )
+
+                    // Live Clock & Battery HUD
+                    if (currentTimeStr.isNotBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Black.copy(alpha = 0.5f))
+                                .padding(horizontal = 7.dp, vertical = 4.dp)
+                        ) {
+                            Text(currentTimeStr, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            if (batteryPercent in 0..100) {
+                                Icon(
+                                    imageVector = if (batteryPercent < 20) Icons.Default.BatteryAlert else Icons.Default.BatteryChargingFull,
+                                    contentDescription = null,
+                                    tint = if (batteryPercent < 20) Color(0xFFEF4444) else Color(0xFF00E5FF),
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text("${batteryPercent}%", color = Color(0xFFD1D5DB), fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            }
+                        }
+                    }
 
                     // Cast / Share to External Devices & Players
                     IconButton(onClick = onCastClick) {
@@ -520,36 +562,59 @@ private fun formatTimeMs(timeMs: Long): String {
 }
 
 @Composable
-fun GestureIndicator(
+fun VerticalGestureSlider(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     progress: Float,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color(0xDD121824),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x3300E5FF)),
-        shadowElevation = 8.dp,
+        shape = RoundedCornerShape(22.dp),
+        color = Color(0xDD0D1117),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x4400E5FF)),
+        shadowElevation = 10.dp,
         modifier = modifier
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .width(46.dp)
+                .height(180.dp)
+                .padding(vertical = 12.dp, horizontal = 6.dp)
         ) {
-            Icon(icon, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(28.dp))
-            LinearProgressIndicator(
-                progress = { progress.coerceIn(0f, 1f) },
-                color = NeonCyan,
-                trackColor = Color(0x44FFFFFF),
-                modifier = Modifier
-                    .width(54.dp)
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp))
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = NeonCyan,
+                modifier = Modifier.size(22.dp)
             )
+
+            // Vertical Track & Fluid Fill
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .width(10.dp)
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Color(0x33FFFFFF)),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(progress.coerceIn(0f, 1f))
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(NeonCyan, Color(0xFF0070F3))
+                            )
+                        )
+                )
+            }
+
             Text(
-                text = "$label ${(progress * 100).toInt()}%",
+                text = "${(progress.coerceIn(0f, 1f) * 100).toInt()}%",
                 color = Color.White,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold

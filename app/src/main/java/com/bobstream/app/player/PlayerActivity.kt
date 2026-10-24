@@ -42,12 +42,22 @@ import com.bobstream.app.util.StreamParser
 import android.content.pm.ActivityInfo
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
-import kotlinx.coroutines.delay
-
 import android.app.PictureInPictureParams
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.Build
+import android.provider.Settings
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.PlaybackParameters
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import kotlinx.coroutines.delay
 
 @UnstableApi
 class PlayerActivity : ComponentActivity() {
@@ -65,9 +75,34 @@ class PlayerActivity : ComponentActivity() {
     private lateinit var audioManager: AudioManager
     private var isPip = mutableStateOf(false)
 
-    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: android.content.res.Configuration) {
+    private val screenOffReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_SCREEN_OFF) {
+                exoPlayer?.pause()
+            }
+        }
+    }
+
+    private fun updateSystemBars(isPlaying: Boolean) {
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (isLandscape && isPlaying && !isPip.value) {
+            insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            insetsController.hide(WindowInsetsCompat.Type.statusBars())
+        } else {
+            insetsController.show(WindowInsetsCompat.Type.statusBars())
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateSystemBars(exoPlayer?.isPlaying == true)
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         isPip.value = isInPictureInPictureMode
+        updateSystemBars(exoPlayer?.isPlaying == true)
     }
 
     override fun onUserLeaveHint() {
@@ -81,6 +116,14 @@ class PlayerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        registerReceiver(screenOffReceiver, IntentFilter(Intent.ACTION_SCREEN_OFF))
+
+        val prefs = getSharedPreferences("bobstream_prefs", Context.MODE_PRIVATE)
+        val defaultLandscape = prefs.getBoolean("default_landscape", true)
+        if (defaultLandscape) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        }
 
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "Live Stream"
         val mediaUrl = intent.getStringExtra(EXTRA_URL) ?: ""
@@ -120,6 +163,7 @@ class PlayerActivity : ComponentActivity() {
         var isBuffering by remember { mutableStateOf(true) }
         var resizeMode by remember { mutableStateOf(ResizeMode.FIT) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
+        var showCastDialog by remember { mutableStateOf(false) }
         var currentPositionMs by remember { mutableLongStateOf(0L) }
         var durationMs by remember { mutableLongStateOf(0L) }
         var currentSpeed by remember { mutableFloatStateOf(1.0f) }
@@ -228,14 +272,21 @@ class PlayerActivity : ComponentActivity() {
                 setEnableDecoderFallback(true)
             }
 
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                .build()
+
             val player = ExoPlayer.Builder(this@PlayerActivity, renderersFactory)
                 .setMediaSourceFactory(mediaSourceFactory)
                 .setLoadControl(loadControl)
+                .setAudioAttributes(audioAttributes, /* handleAudioFocus= */ true)
                 .build()
 
             player.addListener(object : Player.Listener {
                 override fun onIsPlayingChanged(playing: Boolean) {
                     isPlaying = playing
+                    updateSystemBars(playing)
                 }
 
                 override fun onPlaybackStateChanged(playbackState: Int) {
@@ -376,27 +427,7 @@ class PlayerActivity : ComponentActivity() {
                     }
                 },
                 onCastClick = {
-                    try {
-                        val mime = when {
-                            mediaUrl.contains(".mpd", ignoreCase = true) -> "application/dash+xml"
-                            mediaUrl.contains(".m3u8", ignoreCase = true) -> "application/x-mpegURL"
-                            mediaUrl.endsWith(".mp4", ignoreCase = true) -> "video/mp4"
-                            mediaUrl.endsWith(".mkv", ignoreCase = true) -> "video/x-matroska"
-                            else -> "video/*"
-                        }
-                        val castIntent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(Uri.parse(mediaUrl), mime)
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            putExtra("title", title)
-                            headers.forEach { (k, v) ->
-                                putExtra(k, v)
-                            }
-                        }
-                        val chooser = Intent.createChooser(castIntent, "Cast / Play stream via external device or app")
-                        startActivity(chooser)
-                    } catch (e: Exception) {
-                        errorMessage = "No external player or casting app found: ${e.message}"
-                    }
+                    showCastDialog = true
                 },
                 onBrightnessChange = { delta ->
                     currentBrightness = (currentBrightness + delta).coerceIn(0.05f, 1f)
@@ -413,6 +444,70 @@ class PlayerActivity : ComponentActivity() {
                 },
                 onBack = onBack
             )
+
+            // Cast / Screen Mirroring Dialog (Hardware Decrypted Video to TV)
+            if (showCastDialog) {
+                AlertDialog(
+                    onDismissRequest = { showCastDialog = false },
+                    containerColor = Color(0xFF1E2330),
+                    title = { Text("Cast to Screen / TV", color = Color.White, fontWeight = FontWeight.Bold) },
+                    text = {
+                        Text(
+                            "Because live sports streams use DRM encryption (ClearKey) and edge authentication, Smart TVs cannot play raw links directly.\n\nConnect via Wireless Display / Screen Cast to render decrypted video from your phone straight onto your TV.",
+                            color = Color.LightGray,
+                            fontSize = 13.sp
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showCastDialog = false
+                                try {
+                                    startActivity(Intent(Settings.ACTION_CAST_SETTINGS))
+                                } catch (_: Exception) {
+                                    try {
+                                        startActivity(Intent(Settings.ACTION_WIFI_DISPLAY_SETTINGS))
+                                    } catch (e: Exception) {
+                                        errorMessage = "Could not open Cast settings: ${e.message}"
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan)
+                        ) {
+                            Text("Open Wireless Display", color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                showCastDialog = false
+                                try {
+                                    val mime = when {
+                                        mediaUrl.contains(".mpd", ignoreCase = true) -> "application/dash+xml"
+                                        mediaUrl.contains(".m3u8", ignoreCase = true) -> "application/x-mpegURL"
+                                        mediaUrl.endsWith(".mp4", ignoreCase = true) -> "video/mp4"
+                                        mediaUrl.endsWith(".mkv", ignoreCase = true) -> "video/x-matroska"
+                                        else -> "video/*"
+                                    }
+                                    val castIntent = Intent(Intent.ACTION_VIEW).apply {
+                                        setDataAndType(Uri.parse(mediaUrl), mime)
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        putExtra("title", title)
+                                        headers.forEach { (k, v) -> putExtra(k, v) }
+                                    }
+                                    val chooser = Intent.createChooser(castIntent, "Play via External App")
+                                    startActivity(chooser)
+                                } catch (e: Exception) {
+                                    errorMessage = "No external player found: ${e.message}"
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+                        ) {
+                            Text("External App (Non-DRM)", color = Color.White)
+                        }
+                    }
+                )
+            }
 
             // Friendly Error Dialog
             errorMessage?.let { msg ->
@@ -458,20 +553,20 @@ class PlayerActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Do NOT pause playback when entering PiP or going into background
-        // Playback continues playing smoothly in background / PiP mode.
     }
 
     override fun onStop() {
         super.onStop()
-        // If not in Picture-in-Picture mode and user leaves, we can choose to keep audio playing or pause if finishing
-        if (isFinishing) {
+        if (!isPip.value) {
             exoPlayer?.pause()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            unregisterReceiver(screenOffReceiver)
+        } catch (_: Exception) {}
         exoPlayer?.release()
         exoPlayer = null
     }
