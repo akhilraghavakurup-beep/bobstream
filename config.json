@@ -1,6 +1,16 @@
 {
   "matches": [
     {
+      "name": "GT20 CUP",
+      "image": "https://www.sakshipost.com/sites/default/files/article_images/2023/07/31/WhatsApp_Image_2023-07-31_at_08.46.52-1690778401.jpeg",
+      "link": "https://falconstream.zee5.com/cmaf/live/2109037/NCL-M00-241026_ENG/master.m3u8?hdntl=exp=1792895229~acl=%2f*~id=0-1-6z51099415_b35de284-76fd-491c-983b-8e36f6106fd4~data=hdntl,2109037,NCL-M00-241026,ENG,a915badcfe8f0f3b7f42c9e47f7cf0dbe46baf1ce6a7682a51f0576826a3e18f~hmac=36fee6d9eac2bd2ff7e57ffad2b08778fa8e885761b26076d94382fb70a04686|User-Agent=Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36&Referer=https://www.zee5.com/&Origin=https://www.zee5.com"
+    },
+    {
+      "name": "India a vs Newzealand A",
+      "image": "https://i.tribune.com.pk/media/images/india-new-zealand1741357932-0/india-new-zealand1741357932-0.jpg",
+      "link": "https://abn7ylpaaaaaaaame77ehqq2geew7.ta.bia-cf.live.pv-cdn.net/bom-nitro/live/clients/dash/enc/u4og1rywmm/out/v1/809b1c642b0e456fbebbcdc566e93e26/cenc.mpd|drmScheme=clearkey&drmLicense=1ae9f19dac275f64e9a3d7f35166e5ba:29197b1e858a85b94a3694e69b3ebbf7"
+    },
+    {
       "name": "1st Unofficial Test - Day 1 - 24 Oct 2026",
       "image": "https://images.mykhel.com/img/2025/11/india-a-rishabh-pant-1762080093.jpg",
       "link": "https://sonydaimenew.akamaized.net/hls/live/2120300/criclive2310/ENG/master.m3u8?hdnea=exp=1792840818~acl=/*~id=1d8a980e325c883d5eee163146440bb5-1792797618518~hmac=6a60549a80429687d4a6ae23c24658a97457bbba518f3cb7aed9461b29946cbe|Referer=https://www.sonyliv.com/&Origin=https://www.sonyliv.com"
@@ -19,26 +29,6 @@
       "name": "Kaun Banega crorepati",
       "image": "https://images.news18.com/ibnlive/uploads/2021/08/studio_project-6-162868414816x9.jpeg",
       "link": "https://a100live-pv-ta-amazon.akamaized.net/bom-nitro/live/clients/dash/enc/nmd4mhjfix/out/v1/887099df693b471aa576d890c35b171b/cenc.mpd"
-    },
-    {
-      "name": "Kabaddi [Hindi]",
-      "image": "https://gencgazetenet.teimg.com/crop/1280x720/gencgazete-net/uploads/2023/12/qvq-p-yncl-yeni-spor-dallari-kabaddi.jpg",
-      "link": "https://livetv.hotstar.com/mp1/gec-india-1540068295/5a4eb3ac6e424eef8a30962d2232f80f/index.mpd?|cookie=hdntl=exp=1792821391~acl=%2f*~id=b360c069d5c32858ad5fcefcdc608d6d~data=hdntl~hmac=b33be9f6b9ae14855c5a6e6b3b5c68725d538da8cc47140bfde5fb2f33dbfc9a&referer=https://www.hotstar.com/&origin=https://www.hotstar.com&drmScheme=clearkey&drmLicense=b9f1cb8a1361457bbd8097f8c2590000:1960274b7ba344cb899eba2e80916774"
-    },
-    {
-      "name": "Kabaddi",
-      "image": "https://gencgazetenet.teimg.com/crop/1280x720/gencgazete-net/uploads/2023/12/qvq-p-yncl-yeni-spor-dallari-kabaddi.jpg",
-      "link": "https://livetv.hotstar.com/mp1/gec-india-1540068247/9a6e7c30f9194cc1a6a6250cedb115fb/index.mpd?|cookie=hdntl=exp=1792821391~acl=%2f*~id=b360c069d5c32858ad5fcefcdc608d6d~data=hdntl~hmac=b33be9f6b9ae14855c5a6e6b3b5c68725d538da8cc47140bfde5fb2f33dbfc9a&referer=https://www.hotstar.com/&origin=https://www.hotstar.com&drmScheme=clearkey&drmLicense=e85897bf6e594d698b7c82646c8e0000:d2dda31234ae40538843e871cd4dcc2a"
-    },
-    {
-      "name": "Al Nassr",
-      "image": "https://photobooth.cdn.sports.ru/preset/message/a/7e/11642ba144c9d9999c9f028a0a332.jpeg?f=webp&q=90&s=2x&w=730",
-      "link": "https://dai-fancode.pages.dev/mumbai/4250266_english_hls_ade98728f479014_1ta-di_h264/index.m3u8"
-    },
-    {
-      "name": "Fancode link Al Nassr match anyone? [1080p]",
-      "image": "https://i.ytimg.com/vi/0u3rhE8ZmyQ/maxresdefault.jpg",
-      "link": "https://in-mc-flive.fancode.com/mumbai/4250266_english_hls_ade98728f479014_1ta-di_h264/1080p.m3u8?hdntl=Expires=1792847928~_GO=Generated~acl=/mumbai/4250266_english_hls_ade98728f479014_1ta-di_h264/*~SessionID=fc-app_sportsguruand_watcho_d11c6904-e8d2-4c~Signature=ASgJGVDvKaguYhvps3PIC-VYyMYyZ7ggc_VK9N-EEJmP7gZN8a8rxCj7Nf2Y6JjpoDc5FnJbj10gbmmpm1N5bQmgwpcJ"
     }
   ]
 }
