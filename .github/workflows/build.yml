@@ -67,14 +67,17 @@ jobs:
         gh release delete "$TAG_NAME" --yes 2>/dev/null || true
         git tag -d "$TAG_NAME" 2>/dev/null || true
         git push origin ":refs/tags/$TAG_NAME" 2>/dev/null || true
+        cat << 'EOF' > release_notes.md
+        BobStream Release v1.4.0 (Build 8):
+        - Fullscreen Landscape Only Status Bar hiding (status bar remains visible in portrait & when paused).
+        - Native Vertical Animated Volume & Brightness edge sliders with fluid gradient fill.
+        - In-Player HUD: Live Clock & Battery Percentage in top overlay bar.
+        - Media Playback Lifecycle & AudioFocus: Auto-pause playback on screen off (power button) and incoming phone calls.
+        - Decrypted Screen Casting dialog for Wireless Display / Miracast (seamless TV playback of ClearKey DRM streams).
+        - Telegram Scraper engine upgrade: Asterisk stripping, expired token rejection, standalone KID:KEY auto-stitching, and smart semantic sports match title inference.
+        - About Screen with 'Developed by Kurup', Build 8, and full Changelog.
+        - Local APK Download: Save downloaded APK to Downloads folder if in-app update fails or for manual install.
+        EOF
         gh release create "$TAG_NAME" app/build/outputs/apk/release/app-release.apk \
           --title "BobStream $TAG_NAME" \
-          --notes "BobStream Release v1.4.0 (Build 8):
-- Fullscreen Landscape Only Status Bar hiding (status bar remains visible in portrait & when paused).
-- Native Vertical Animated Volume & Brightness edge sliders with fluid gradient fill.
-- In-Player HUD: Live Clock & Battery Percentage in top overlay bar.
-- Media Playback Lifecycle & AudioFocus: Auto-pause playback on screen off (power button) and incoming phone calls.
-- Decrypted Screen Casting dialog for Wireless Display / Miracast (seamless TV playback of ClearKey DRM streams).
-- Telegram Scraper engine upgrade: Asterisk stripping, expired token rejection, standalone KID:KEY auto-stitching, and smart semantic sports match title inference.
-- About Screen with 'Developed by Kurup', Build 8, and full Changelog.
-- Local APK Download: Save downloaded APK to Downloads folder if in-app update fails or for manual install."
+          --notes-file release_notes.md
